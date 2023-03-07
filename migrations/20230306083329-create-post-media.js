@@ -9,6 +9,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      postId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: false,
+        onDelete: "CASCADE",
+        references : {
+          model : "post_data",
+          key : "id"
+        }
+      },
       mediaPath: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -16,11 +26,6 @@ module.exports = {
       mediaType: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      postId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        autoIncrement: false,
       },
       createdAt: {
         allowNull: false,

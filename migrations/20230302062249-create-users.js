@@ -32,6 +32,12 @@ module.exports = {
       dob: {
         type: Sequelize.DATE,
       },
+      profilePic: {
+        type: Sequelize.STRING,
+      },
+      coverPic: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

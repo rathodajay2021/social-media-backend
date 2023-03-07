@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       bio: DataTypes.STRING,
       dob: DataTypes.DATE,
+      profilePic: {
+        type: DataTypes.STRING,
+      },
+      coverPic: {
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,

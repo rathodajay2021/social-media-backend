@@ -1,18 +1,49 @@
-const { post_data, postMedia } = require("../models");
+const { post_data, postMedia, users } = require("../models");
+const deleteFile = require("../helpers/mediaFile");
+const { SERVER_PATH } = require("../helpers/path");
 
 const getAllPost = (req, res) => {
   post_data
     .findAll({
-      attributes: ["id", "description"],
+      attributes: [["id", "postId"], "description", "createdAt"],
       include: [
         {
           model: postMedia,
           attributes: ["mediaPath", "mediaType"],
         },
+        {
+          model: users,
+          attributes: [["id", "userId"], "firstName", "lastName", "profilePic"],
+        },
       ],
+      order: [["createdAt", "DESC"]],
     })
     .then((result) => res.json(result))
     .catch((err) => console.log(err));
+};
+
+const getUserPost = (req, res) => {
+  const userId = req.params.id;
+
+  users
+    .findOne({
+      where: {
+        id: userId,
+      },
+      include: {
+        model: post_data,
+        attributes: [["id", "postId"], "description", "createdAt"],
+        include: [
+          {
+            model: postMedia,
+            attributes: ["mediaPath", "mediaType"],
+          },
+        ],
+      },
+      order: [["createdAt", "DESC"]],
+    })
+    .then((result) => res.json(result))
+    .catch((err) => res.json(err));
 };
 
 const addPost = (req, res, next) => {
@@ -48,23 +79,45 @@ const addPost = (req, res, next) => {
 
         let MediaTableData = {
           postId: postResult.dataValues.id,
-          mediaPath: files.mediaData[i].path,
+          mediaPath: SERVER_PATH + files.mediaData[i].path,
           mediaType,
         };
 
         postMedia
           .create(MediaTableData)
-          .then((mediaResult) => res.json(mediaResult))
+          .then((mediaResult) => console.log(mediaResult))
           .catch((error) => res.json(error));
       }
-      res.json(postResult);
+      res.json({
+        postResult,
+        isSuccess: true,
+        message: "New post added successfully",
+      });
     })
     .catch((err) => res.json(err));
 };
 
-const deletePost = (req, res) => {
+const deletePost = (req, res, next) => {
   const id = req.params.id;
 
+  //clear media files
+  postMedia
+    .findAll({
+      where: { postId: id },
+    })
+    .then((postResult) => {
+      if(!postResult){
+        return next(new Error('Media file not found'))
+      }
+      for (let i = 0; i < postResult.length; i++) {
+        tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH,"")
+        console.log(tempMediaPath)
+        deleteFile(tempMediaPath)
+      }
+    })
+    .catch((err) => res.json(err));
+
+  //clear database
   post_data
     .destroy({ where: { id: id } })
     .then((result) =>
@@ -75,6 +128,7 @@ const deletePost = (req, res) => {
 
 module.exports = {
   getAllPost,
+  getUserPost,
   addPost,
   deletePost,
 };

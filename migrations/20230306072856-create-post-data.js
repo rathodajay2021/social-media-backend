@@ -9,13 +9,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      description: {
-        type: Sequelize.STRING
-      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: false,
+        onDelete: "CASCADE",
+        references : {
+          model : "users",
+          key : "id"
+        }
+      },
+      description: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

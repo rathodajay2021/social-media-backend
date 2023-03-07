@@ -35,3 +35,6 @@ app.get(pathUrl.DEFAULT_URL, (req, res) => {
 
 app.use(pathUrl.DEFAULT_URL, userRoutes);
 app.use(pathUrl.DEFAULT_URL, postRoutes);
+
+//show media file on browser
+app.use('/assets/media', express.static('assets/media'))
