@@ -7,6 +7,7 @@ const ADD_POST_URL = "/add-post";
 const GET_ALL_POST_URL = "/get-all-post";
 const GET_USER_POST_URL = "/get-user-post";
 const DELETE_POST_URL = "/delete-post";
+const EDIT_USER_URL = "/edit-user";
 const SERVER_PATH = "http://localhost:5000/";
 
 module.exports = {
@@ -19,5 +20,6 @@ module.exports = {
   GET_ALL_POST_URL,
   DELETE_POST_URL,
   GET_USER_POST_URL,
-  SERVER_PATH
+  EDIT_USER_URL,
+  SERVER_PATH,
 };

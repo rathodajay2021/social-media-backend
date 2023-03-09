@@ -111,7 +111,6 @@ const deletePost = (req, res, next) => {
       }
       for (let i = 0; i < postResult.length; i++) {
         tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH,"")
-        console.log(tempMediaPath)
         deleteFile(tempMediaPath)
       }
     })
