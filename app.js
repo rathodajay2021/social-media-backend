@@ -8,6 +8,7 @@ const pathUrl = require("./helpers/path");
 //routes
 const userRoutes = require("./routes/usersRotes");
 const postRoutes = require("./routes/postRoutes");
+const friendsRoutes = require("./routes/friendsRoutes")
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,7 @@ app.get(pathUrl.DEFAULT_URL, (req, res) => {
 
 app.use(pathUrl.DEFAULT_URL, userRoutes);
 app.use(pathUrl.DEFAULT_URL, postRoutes);
+app.use(pathUrl.DEFAULT_URL, friendsRoutes);
 
 //show media file on browser
 app.use('/assets/media', express.static('assets/media'))

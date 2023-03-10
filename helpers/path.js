@@ -8,6 +8,10 @@ const GET_ALL_POST_URL = "/get-all-post";
 const GET_USER_POST_URL = "/get-user-post";
 const DELETE_POST_URL = "/delete-post";
 const EDIT_USER_URL = "/edit-user";
+const ADD_FRIEND_URL = "/add-friend";
+const REMOVE_FRIEND_URL = "/remove-friend";
+const FRIEND_LIST_URL = "/get-friend-list";
+const USER_LIST_URL = "/get-user-list";
 const SERVER_PATH = "http://localhost:5000/";
 
 module.exports = {
@@ -21,5 +25,9 @@ module.exports = {
   DELETE_POST_URL,
   GET_USER_POST_URL,
   EDIT_USER_URL,
+  ADD_FRIEND_URL,
+  REMOVE_FRIEND_URL,
+  FRIEND_LIST_URL,
   SERVER_PATH,
+  USER_LIST_URL
 };
