@@ -15,17 +15,27 @@ const createJsonToken = (id) => {
 const createUser = async (req, res) => {
   const salt = await bcrypt.genSalt();
   const hashPassword = await bcrypt.hash(req.body.password, salt);
-  req.body.password = hashPassword;
+
+  const Data = {
+    firstName: req.body.firstName.trim(),
+    lastName: req.body.lastName.trim(),
+    email: req.body.email,
+    password: hashPassword,
+  };
 
   users
-    .create(req.body)
+    .create(Data)
     .then((userResult) => {
       const token = createJsonToken(userResult.id);
       userResult.dataValues["accessToken"] = token;
       userResult.dataValues["isUserVerified"] = true;
       return res.json(userResult);
     })
-    .catch((err) => console.log(err));
+    .catch((err) =>
+      res.status(422).json({
+        message: `${err.errors[0].message}, this mail id is already in use try another email`,
+      })
+    );
 };
 
 const loginUser = (req, res) => {
