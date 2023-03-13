@@ -1,10 +1,10 @@
 const { friends, users } = require("../models");
 const { Op } = require("sequelize");
 
-const getFriendList = (req, res) => {
+const getFriendList = async(req, res) => {
   const userId = req.params.id;
-  friends
-    .findAll({
+  const { count, rows } = await friends
+    .findAndCountAll({
       where: {
         [Op.or]: [{ userId1: userId }, { userId2: userId }],
       },
@@ -12,33 +12,44 @@ const getFriendList = (req, res) => {
         {
           model: users,
           as: "userOne",
-          attributes: [["id", "userId"], "firstName", "lastName", "bio", "profilePic"],
+          attributes: [
+            ["id", "userId"],
+            "firstName",
+            "lastName",
+            "bio",
+            "profilePic",
+          ],
         },
         {
           model: users,
           as: "userTwo",
-          attributes: [["id", "userId"], "firstName", "lastName", "bio", "profilePic"],
+          attributes: [
+            ["id", "userId"],
+            "firstName",
+            "lastName",
+            "bio",
+            "profilePic",
+          ],
         },
       ],
     })
-    .then((result) => {
+    if(rows){
       let dataToSend = [];
-      for (let index = 0; index < result.length; index++) {
-        if (result[index].userId1 === parseInt(userId)) {
-          dataToSend.push({
-            ...result[index].userTwo.dataValues,
-            isFriend: true,
-          });
-        } else {
-          dataToSend.push({
-            ...result[index].userOne.dataValues,
-            isFriend: true,
-          });
+        for (let index = 0; index < rows.length; index++) {
+          if (rows[index].userId1 === parseInt(userId)) {
+            dataToSend.push({
+              ...rows[index].userTwo.dataValues,
+              isFriend: true,
+            });
+          } else {
+            dataToSend.push({
+              ...rows[index].userOne.dataValues,
+              isFriend: true,
+            });
+          }
         }
-      }
-      res.json(dataToSend);
-    })
-    .catch((err) => res.json(err));
+      res.json({rows: dataToSend, count})
+    }
 };
 
 const getAllUserList = async (req, res) => {

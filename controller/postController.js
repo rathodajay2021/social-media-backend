@@ -46,6 +46,23 @@ const getUserPost = (req, res) => {
     .catch((err) => res.json(err));
 };
 
+const getUserFiles = async(req, res) => {
+  const postId = req.params.id
+  console.log("🚀 ~ file: postController.js:51 ~ getUserFiles ~ postId:", postId)
+  const response = await post_data.findOne({
+    where: {id: postId},
+    attributes: [["id", "postId"], "description", "createdAt"],
+    include: [
+      {
+        model: postMedia,
+        attributes: [["id", "mediaID"],"mediaPath", "mediaType"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+  })
+  res.json(response)
+}
+
 const addPost = (req, res, next) => {
   const id = req.params.id;
   const files = req.files;
@@ -130,6 +147,7 @@ const deletePost = (req, res, next) => {
 module.exports = {
   getAllPost,
   getUserPost,
+  getUserFiles,
   addPost,
   deletePost,
 };
