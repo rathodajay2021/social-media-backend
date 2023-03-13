@@ -15,17 +15,27 @@ const createJsonToken = (id) => {
 const createUser = async (req, res) => {
   const salt = await bcrypt.genSalt();
   const hashPassword = await bcrypt.hash(req.body.password, salt);
-  req.body.password = hashPassword;
+
+  const Data = {
+    firstName: req.body.firstName.trim(),
+    lastName: req.body.lastName.trim(),
+    email: req.body.email,
+    password: hashPassword,
+  };
 
   users
-    .create(req.body)
+    .create(Data)
     .then((userResult) => {
       const token = createJsonToken(userResult.id);
       userResult.dataValues["accessToken"] = token;
       userResult.dataValues["isUserVerified"] = true;
       return res.json(userResult);
     })
-    .catch((err) => console.log(err));
+    .catch((err) =>
+      res.status(422).json({
+        message: `${err.errors[0].message}, this mail id is already in use try another email`,
+      })
+    );
 };
 
 const loginUser = (req, res) => {
@@ -94,7 +104,10 @@ const editUserDetails = (req, res) => {
   if (!!files.profilePic)
     data["profilePic"] = SERVER_PATH + files.profilePic[0].path;
 
-  // delete media if exist
+  if (req.body.coverPicUrl === "null") data["coverPic"] = null;
+  if (req.body.profilePicUrl === "null") data["profilePic"] = null;
+
+  // delete media if exist on new pic or delete of pic
   users
     .findOne({
       where: {
@@ -102,11 +115,17 @@ const editUserDetails = (req, res) => {
       },
     })
     .then((userResult) => {
-      if (userResult.coverPic && !!files.coverPic) {
+      if (
+        userResult.coverPic &&
+        (!!files.coverPic || req.body.coverPicUrl === "null")
+      ) {
         tempMediaPath = userResult.coverPic.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
-      if (userResult.profilePic && !!files.profilePic) {
+      if (
+        userResult.profilePic &&
+        (!!files.profilePic || req.body.profilePicUrl === "null")
+      ) {
         tempMediaPath = userResult.profilePic.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
