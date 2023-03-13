@@ -44,41 +44,41 @@ const getFriendList = (req, res) => {
 const getAllUserList = async (req, res) => {
   const id = req.params.id;
 
-  // users
-  //   .findAll({
-  //     attributes: [["id", "userId"], "firstName", "lastName", "bio"],
-  //   })
-  //   .then((userResult) => {
-  //     let arr = [];
-  //     for (let index = 0; index < userResult.length; index++) {
-  //       friends
-  //         .findOne({
-  //           where: {
-  //             [Op.or]: [
-  //               {
-  //                 [Op.and]: [
-  //                   { userId1: id },
-  //                   { userId2: userResult[index].dataValues.userId },
-  //                 ],
-  //               },
-  //               {
-  //                 [Op.and]: [
-  //                   { userId1: userResult[index].dataValues.userId },
-  //                   { userId2: id },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //         })
-  //         .then((friendResult) => {
-  //           console.log("loop part", userResult[index].dataValues);
-  //           arr.push({ ...userResult[index], isFriend: true });
-  //         })
-  //         .catch((err) => res.json(err));
-  //     }
-  //     res.json(arr);
-  //   })
-  //   .catch((err) => res.json(err));
+  users
+    .findAll({
+      attributes: [["id", "userId"], "firstName", "lastName", "bio"],
+    })
+    .then((userResult) => {
+      let arr = [];
+      for (let index = 0; index < userResult.length; index++) {
+        friends
+          .findOne({
+            where: {
+              [Op.or]: [
+                {
+                  [Op.and]: [
+                    { userId1: id },
+                    { userId2: userResult[index].dataValues.userId },
+                  ],
+                },
+                {
+                  [Op.and]: [
+                    { userId1: userResult[index].dataValues.userId },
+                    { userId2: id },
+                  ],
+                },
+              ],
+            },
+          })
+          .then((friendResult) => {
+            console.log("loop part", userResult[index].dataValues);
+            arr.push({ ...userResult[index], isFriend: true });
+          })
+          .catch((err) => res.json(err));
+      }
+      res.json(arr);
+    })
+    .catch((err) => res.json(err));
 };
 
 const addFriend = (req, res) => {
@@ -111,11 +111,11 @@ module.exports = {
   removeFriend,
 };
 
-// SELECT
-//   *
-// FROM
-//   `users` u
-//   left outer join friends f on u.id = f.userId1
-//   and f.userId2 = '2'
-//   left outer join f2 on u.id = f2.userId2
+// SELECT 
+//   * 
+// FROM 
+//   `users` u 
+//   left outer join friends f on u.id = f.userId1 
+//   and f.userId2 = '2' 
+//   left outer join f2 on u.id = f2.userId2 
 //   and f2.userId1 = '2'
