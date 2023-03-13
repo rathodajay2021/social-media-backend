@@ -43,65 +43,82 @@ const getFriendList = (req, res) => {
 
 const getAllUserList = async (req, res) => {
   const id = req.params.id;
+  let finalData = [];
 
-  // users
-  //   .findAll({
-  //     attributes: [["id", "userId"], "firstName", "lastName", "bio"],
-  //   })
-  //   .then((userResult) => {
-  //     let arr = [];
-  //     for (let index = 0; index < userResult.length; index++) {
-  //       friends
-  //         .findOne({
-  //           where: {
-  //             [Op.or]: [
-  //               {
-  //                 [Op.and]: [
-  //                   { userId1: id },
-  //                   { userId2: userResult[index].dataValues.userId },
-  //                 ],
-  //               },
-  //               {
-  //                 [Op.and]: [
-  //                   { userId1: userResult[index].dataValues.userId },
-  //                   { userId2: id },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //         })
-  //         .then((friendResult) => {
-  //           console.log("loop part", userResult[index].dataValues);
-  //           arr.push({ ...userResult[index], isFriend: true });
-  //         })
-  //         .catch((err) => res.json(err));
-  //     }
-  //     res.json(arr);
-  //   })
-  //   .catch((err) => res.json(err));
+  const response = await users.findAll({
+    where: { [Op.not]: [{ id: id }] },
+    attributes: [
+      ["id", "userId"],
+      "firstName",
+      "lastName",
+      "bio",
+      "profilePic",
+    ],
+  });
+
+  if (response) {
+    for (let index = 0; index < response.length; index++) {
+      const friendsResponseOne = await friends.findOne({
+        where: {
+          [Op.and]: [
+            { userId1: id },
+            { userId2: response[index].dataValues.userId },
+          ],
+        },
+      });
+      const friendsResponseTwo = await friends.findOne({
+        where: {
+          [Op.and]: [
+            { userId1: response[index].dataValues.userId },
+            { userId2: id },
+          ],
+        },
+      });
+      if (friendsResponseOne || friendsResponseTwo) {
+        finalData.push({ ...response[index].dataValues, isFriend: true });
+      } else {
+        finalData.push({ ...response[index].dataValues, isFriend: false });
+      }
+    }
+    res.json(finalData);
+  }
 };
 
 const addFriend = (req, res) => {
   friends
     .create(req.body)
-    .then((result) => res.json(result))
+    .then((result) =>
+      res.json({ result, message: "New friend added successfully" })
+    )
     .catch((err) => res.json(err));
 };
 
-const removeFriend = (req, res) => {
-  friends
-    .destroy({
-      where: {
-        [Op.and]: [
-          { userId1: req.body.userId1 },
-          { userId2: req.body.userId2 },
-        ],
-      },
-    })
-    .then((result) =>
-      res.json({ result, message: "Friend is deleted successfully" })
-    )
-    .catch((err) => res.json(err));
+const removeFriend = async (req, res) => {
+  const friendsListDeleteOne = await friends.destroy({
+    where: {
+      [Op.and]: [{ userId1: req.body.userId1 }, { userId2: req.body.userId2 }],
+    },
+  });
+
+  if (friendsListDeleteOne) {
+    return res.json({
+      friendsListDeleteOne,
+      message: "Un-friend successfully",
+    });
+  }
+
+  const friendsListDeleteTwo = await friends.destroy({
+    where: {
+      [Op.and]: [{ userId1: req.body.userId2 }, { userId2: req.body.userId1 }],
+    },
+  });
+
+  if (friendsListDeleteTwo) {
+    return res.json({
+      friendsListDeleteTwo,
+      message: "Un-friend is deleted successfully",
+    });
+  }
 };
 
 module.exports = {
