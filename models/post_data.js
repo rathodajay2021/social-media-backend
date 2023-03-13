@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   post_data.init(
     {
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT('long'),
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,

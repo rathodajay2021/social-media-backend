@@ -12,12 +12,12 @@ const getFriendList = (req, res) => {
         {
           model: users,
           as: "userOne",
-          attributes: [["id", "userId"], "firstName", "lastName", "bio"],
+          attributes: [["id", "userId"], "firstName", "lastName", "bio", "profilePic"],
         },
         {
           model: users,
           as: "userTwo",
-          attributes: [["id", "userId"], "firstName", "lastName", "bio"],
+          attributes: [["id", "userId"], "firstName", "lastName", "bio", "profilePic"],
         },
       ],
     })

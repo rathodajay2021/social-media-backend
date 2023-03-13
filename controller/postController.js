@@ -39,8 +39,8 @@ const getUserPost = (req, res) => {
             attributes: ["mediaPath", "mediaType"],
           },
         ],
+        order: [["createdAt", "DESC"]],
       },
-      order: [["createdAt", "DESC"]],
     })
     .then((result) => res.json(result))
     .catch((err) => res.json(err));
@@ -64,29 +64,31 @@ const addPost = (req, res, next) => {
   post_data
     .create(postTableData)
     .then((postResult) => {
-      for (let i = 0; i < files?.mediaData.length; i++) {
-        let mediaType;
+      if (!!files?.mediaData) {
+        for (let i = 0; i < files?.mediaData.length; i++) {
+          let mediaType;
 
-        if (
-          files.mediaData[i].mimetype === "image/jpeg" ||
-          files.mediaData[i].mimetype === "image/jpg" ||
-          files.mediaData[i].mimetype === "image/png"
-        ) {
-          mediaType = "img";
-        } else {
-          mediaType = "video";
+          if (
+            files.mediaData[i].mimetype === "image/jpeg" ||
+            files.mediaData[i].mimetype === "image/jpg" ||
+            files.mediaData[i].mimetype === "image/png"
+          ) {
+            mediaType = "img";
+          } else {
+            mediaType = "video";
+          }
+
+          let MediaTableData = {
+            postId: postResult.dataValues.id,
+            mediaPath: SERVER_PATH + files.mediaData[i].path,
+            mediaType,
+          };
+
+          postMedia
+            .create(MediaTableData)
+            .then((mediaResult) => console.log(mediaResult))
+            .catch((error) => res.json(error));
         }
-
-        let MediaTableData = {
-          postId: postResult.dataValues.id,
-          mediaPath: SERVER_PATH + files.mediaData[i].path,
-          mediaType,
-        };
-
-        postMedia
-          .create(MediaTableData)
-          .then((mediaResult) => console.log(mediaResult))
-          .catch((error) => res.json(error));
       }
       res.json({
         postResult,
@@ -94,7 +96,7 @@ const addPost = (req, res, next) => {
         message: "New post added successfully",
       });
     })
-    .catch((err) => res.json(err));
+    .catch((err) => console.log(err));
 };
 
 const deletePost = (req, res, next) => {
@@ -106,12 +108,12 @@ const deletePost = (req, res, next) => {
       where: { postId: id },
     })
     .then((postResult) => {
-      if(!postResult){
-        return next(new Error('Media file not found'))
+      if (!postResult) {
+        return next(new Error("Media file not found"));
       }
       for (let i = 0; i < postResult.length; i++) {
-        tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH,"")
-        deleteFile(tempMediaPath)
+        tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
+        deleteFile(tempMediaPath);
       }
     })
     .catch((err) => res.json(err));

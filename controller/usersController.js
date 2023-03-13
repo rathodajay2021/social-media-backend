@@ -94,8 +94,8 @@ const editUserDetails = (req, res) => {
   const userId = req.params.id;
   const files = req.files;
   const data = {
-    firstName: req.body?.firstName,
-    lastName: req.body?.lastName,
+    firstName: req.body?.firstName.trim(),
+    lastName: req.body?.lastName.trim(),
     bio: req.body?.bio,
     dob: req.body?.dob,
   };
