@@ -1,55 +1,55 @@
 const { friends, users } = require("../models");
 const { Op } = require("sequelize");
+const sequelize = require("sequelize");
 
-const getFriendList = async(req, res) => {
+const getFriendList = async (req, res) => {
   const userId = req.params.id;
-  const { count, rows } = await friends
-    .findAndCountAll({
-      where: {
-        [Op.or]: [{ userId1: userId }, { userId2: userId }],
+  const { count, rows } = await friends.findAndCountAll({
+    where: {
+      [Op.or]: [{ userId1: userId }, { userId2: userId }],
+    },
+    include: [
+      {
+        model: users,
+        as: "userOne",
+        attributes: [
+          ["id", "userId"],
+          "firstName",
+          "lastName",
+          "bio",
+          "profilePic",
+        ],
       },
-      include: [
-        {
-          model: users,
-          as: "userOne",
-          attributes: [
-            ["id", "userId"],
-            "firstName",
-            "lastName",
-            "bio",
-            "profilePic",
-          ],
-        },
-        {
-          model: users,
-          as: "userTwo",
-          attributes: [
-            ["id", "userId"],
-            "firstName",
-            "lastName",
-            "bio",
-            "profilePic",
-          ],
-        },
-      ],
-    })
-    if(rows){
-      let dataToSend = [];
-        for (let index = 0; index < rows.length; index++) {
-          if (rows[index].userId1 === parseInt(userId)) {
-            dataToSend.push({
-              ...rows[index].userTwo.dataValues,
-              isFriend: true,
-            });
-          } else {
-            dataToSend.push({
-              ...rows[index].userOne.dataValues,
-              isFriend: true,
-            });
-          }
-        }
-      res.json({rows: dataToSend, count})
+      {
+        model: users,
+        as: "userTwo",
+        attributes: [
+          ["id", "userId"],
+          "firstName",
+          "lastName",
+          "bio",
+          "profilePic",
+        ],
+      },
+    ],
+  });
+  if (rows) {
+    let dataToSend = [];
+    for (let index = 0; index < rows.length; index++) {
+      if (rows[index].userId1 === parseInt(userId)) {
+        dataToSend.push({
+          ...rows[index].userTwo.dataValues,
+          isFriend: true,
+        });
+      } else {
+        dataToSend.push({
+          ...rows[index].userOne.dataValues,
+          isFriend: true,
+        });
+      }
     }
+    res.json({ rows: dataToSend, count });
+  }
 };
 
 const getAllUserList = async (req, res) => {
@@ -57,40 +57,49 @@ const getAllUserList = async (req, res) => {
   let finalData = [];
 
   const response = await users.findAll({
-    where: { [Op.not]: [{ id: id }] },
-    attributes: [
-      ["id", "userId"],
-      "firstName",
-      "lastName",
-      "bio",
-      "profilePic",
+    where: { [Op.not]: { id: id } },
+    attributes: ["id", "firstName", "lastName", "bio", "profilePic"],
+    include: [
+      {
+        model: friends,
+        as: "userOne",
+        required: false,
+        where: { userId2: id },
+      },
+      {
+        model: friends,
+        as: "userTwo",
+        required: false,
+        where: { userId1: id },
+      },
     ],
   });
 
   if (response) {
     for (let index = 0; index < response.length; index++) {
-      const friendsResponseOne = await friends.findOne({
-        where: {
-          [Op.and]: [
-            { userId1: id },
-            { userId2: response[index].dataValues.userId },
-          ],
-        },
-      });
-      const friendsResponseTwo = await friends.findOne({
-        where: {
-          [Op.and]: [
-            { userId1: response[index].dataValues.userId },
-            { userId2: id },
-          ],
-        },
-      });
-      if (friendsResponseOne || friendsResponseTwo) {
-        finalData.push({ ...response[index].dataValues, isFriend: true });
+      let tempObj = {
+        userId: response[index].dataValues.id,
+        firstName: response[index].dataValues.firstName,
+        lastName: response[index].dataValues.lastName,
+        bio: response[index].dataValues.bio,
+        profilePic: response[index].dataValues.profilePic,
+      };
+      if (
+        !!response[index].dataValues.userOne.length ||
+        !!response[index].dataValues.userTwo.length
+      ) {
+        finalData.push({
+          ...tempObj,
+          isFriend: true,
+        });
       } else {
-        finalData.push({ ...response[index].dataValues, isFriend: false });
+        finalData.push({
+          ...tempObj,
+          isFriend: false,
+        });
       }
     }
+
     res.json(finalData);
   }
 };
