@@ -1,6 +1,5 @@
 const { friends, users } = require("../models");
 const { Op } = require("sequelize");
-const sequelize = require("sequelize");
 
 const getFriendList = async (req, res) => {
   const userId = req.params.id;
