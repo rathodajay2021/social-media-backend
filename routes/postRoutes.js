@@ -24,6 +24,17 @@ router.post(
   upload.fields([{ name: "mediaData", maxCount: 5 }]),
   controller.addPost
 );
+router.put(
+  `${path.EDIT_POST_URL}/:id`,
+  protectedRoutes,
+  upload.fields([{ name: "mediaData", maxCount: 5 }]),
+  controller.editPost
+);
+router.delete(
+  `${path.DELETE_POST_MEDIA_URL}/:id`,
+  protectedRoutes,
+  controller.deletePostMedia
+);
 router.delete(
   `${path.DELETE_POST_URL}/:id`,
   protectedRoutes,

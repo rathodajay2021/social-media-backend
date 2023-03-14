@@ -46,24 +46,23 @@ const getUserPost = (req, res) => {
     .catch((err) => res.json(err));
 };
 
-const getUserFiles = async(req, res) => {
-  const postId = req.params.id
-  console.log("🚀 ~ file: postController.js:51 ~ getUserFiles ~ postId:", postId)
+const getUserFiles = async (req, res) => {
+  const postId = req.params.id;
   const response = await post_data.findOne({
-    where: {id: postId},
+    where: { id: postId },
     attributes: [["id", "postId"], "description", "createdAt"],
     include: [
       {
         model: postMedia,
-        attributes: [["id", "mediaID"],"mediaPath", "mediaType"],
+        attributes: [["id", "mediaID"], "mediaPath", "mediaType"],
       },
     ],
     order: [["createdAt", "DESC"]],
-  })
-  res.json(response)
-}
+  });
+  res.json(response);
+};
 
-const addPost = (req, res, next) => {
+const addPost = (req, res) => {
   const id = req.params.id;
   const files = req.files;
 
@@ -116,6 +115,66 @@ const addPost = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+const editPost = async (req, res) => {
+  const id = req.params.id;
+  const files = req.files;
+
+  const tableData = {
+    description: req.body.description,
+  };
+
+  if (!files) {
+    return res.status(422).json({
+      message: "Attached file is invalid, Please attached valid file",
+    });
+  }
+
+  const response = await post_data.update(tableData, { where: { id: id } });
+
+  if (response) {
+    if (!!files?.mediaData) {
+      for (let i = 0; i < files?.mediaData.length; i++) {
+        let mediaType;
+
+        if (
+          files.mediaData[i].mimetype === "image/jpeg" ||
+          files.mediaData[i].mimetype === "image/jpg" ||
+          files.mediaData[i].mimetype === "image/png" ||
+          files.mediaData[i].mimetype === "img"
+        ) {
+          mediaType = "img";
+        } else {
+          mediaType = "video";
+        }
+
+        let MediaTableData = {
+          postId: id,
+          mediaPath: SERVER_PATH + files.mediaData[i].path,
+          mediaType,
+        };
+        //add new media
+        await postMedia.create(MediaTableData);
+      }
+    }
+    
+    res.json({
+      response,
+      isSuccess: true,
+      message: "User post updated successfully",
+    });
+  }
+};
+
+const deletePostMedia = async (req, res, next) => {
+  const mediaId = req.params.id;
+
+  const response = await postMedia.destroy({ where: { id: mediaId } });
+
+  if (response) {
+    res.json({ response, message: "Media file deleted successfully" });
+  }
+};
+
 const deletePost = (req, res, next) => {
   const id = req.params.id;
 
@@ -149,5 +208,7 @@ module.exports = {
   getUserPost,
   getUserFiles,
   addPost,
+  editPost,
+  deletePostMedia,
   deletePost,
 };
