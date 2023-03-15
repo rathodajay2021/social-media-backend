@@ -1,6 +1,6 @@
-const { post_data, postMedia, users } = require("../models");
-const deleteFile = require("../helpers/mediaFile");
-const { SERVER_PATH } = require("../helpers/path");
+const { post_data, postMedia, users } = require("../Models");
+const deleteFile = require("../Helpers/mediaFile");
+const { SERVER_PATH } = require("../Helpers/path");
 
 const getAllPost = (req, res) => {
   post_data

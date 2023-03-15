@@ -1,10 +1,10 @@
 const express = require("express");
-const upload = require("../helpers/uploader");
+const upload = require("../Helpers/uploader");
 
 const router = express.Router();
-const controller = require("../controller/postController");
-const path = require("../helpers/path");
-const protectedRoutes = require("../helpers/authMiddleware");
+const controller = require("../Controller/postController");
+const path = require("../Helpers/path");
+const protectedRoutes = require("../Helpers/authMiddleware");
 
 // const uploadMiddleware = ;
 router.get(path.GET_ALL_POST_URL, protectedRoutes, controller.getAllPost);

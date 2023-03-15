@@ -1,9 +1,9 @@
-const { users } = require("../models");
+const { users } = require("../Models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const { SERVER_PATH } = require("../helpers/path");
-const deleteFile = require("../helpers/mediaFile");
+const { SERVER_PATH } = require("../Helpers/path");
+const deleteFile = require("../Helpers/mediaFile");
 
 const secretKey = "openXcell";
 const maxAge = 1 * 24 * 60 * 60; //in seconds
