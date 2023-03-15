@@ -1,4 +1,4 @@
-const { post_data, postMedia, users } = require("../Models");
+const { post_data, postMedia, users } = require("../Database/Schemas");
 const deleteFile = require("../Helpers/mediaFile");
 const { SERVER_PATH } = require("../Helpers/path");
 

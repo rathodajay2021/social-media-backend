@@ -1,5 +1,6 @@
-const { friends, users } = require("../Models");
+const { friends, users } = require("../Database/Schemas");
 const { Op } = require("sequelize");
+const ResponseHandler = require("../Config/responseHandler");
 
 const getFriendList = async (req, res) => {
   const userId = req.params.id;
@@ -52,54 +53,64 @@ const getFriendList = async (req, res) => {
 };
 
 const getAllUserList = async (req, res) => {
-  const id = req.params.id;
-  let finalData = [];
+  try {
+    // const API_RESPONSE = new ResponseHandler(req, res);
 
-  const response = await users.findAll({
-    where: { [Op.not]: { id: id } },
-    attributes: ["id", "firstName", "lastName", "bio", "profilePic"],
-    include: [
-      {
-        model: friends,
-        as: "userOne",
-        required: false,
-        where: { userId2: id },
-      },
-      {
-        model: friends,
-        as: "userTwo",
-        required: false,
-        where: { userId1: id },
-      },
-    ],
-  });
+    const id = req.params.id;
+    let finalData = [];
 
-  if (response) {
-    for (let index = 0; index < response.length; index++) {
-      let tempObj = {
-        userId: response[index].dataValues.id,
-        firstName: response[index].dataValues.firstName,
-        lastName: response[index].dataValues.lastName,
-        bio: response[index].dataValues.bio,
-        profilePic: response[index].dataValues.profilePic,
-      };
-      if (
-        !!response[index].dataValues.userOne.length ||
-        !!response[index].dataValues.userTwo.length
-      ) {
-        finalData.push({
-          ...tempObj,
-          isFriend: true,
-        });
-      } else {
-        finalData.push({
-          ...tempObj,
-          isFriend: false,
-        });
+    const response = await users.findAll({
+      where: { [Op.not]: { id: id } },
+      attributes: ["id", "firstName", "lastName", "bio", "profilePic"],
+      include: [
+        {
+          model: friends,
+          as: "userOne",
+          required: false,
+          where: { userId2: id },
+        },
+        {
+          model: friends,
+          as: "userTwo",
+          required: false,
+          where: { userId1: id },
+        },
+      ],
+    });
+
+    if (response) {
+      for (let index = 0; index < response.length; index++) {
+        let tempObj = {
+          userId: response[index].dataValues.id,
+          firstName: response[index].dataValues.firstName,
+          lastName: response[index].dataValues.lastName,
+          bio: response[index].dataValues.bio,
+          profilePic: response[index].dataValues.profilePic,
+        };
+        if (
+          !!response[index].dataValues.userOne.length ||
+          !!response[index].dataValues.userTwo.length
+        ) {
+          finalData.push({
+            ...tempObj,
+            isFriend: true,
+          });
+        } else {
+          finalData.push({
+            ...tempObj,
+            isFriend: false,
+          });
+        }
       }
-    }
 
-    res.json(finalData);
+      res.handler.success(finalData);
+      // res.json(finalData);
+    }
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: friendsController .js:110 ~ getAllUserList ~ error:",
+      error
+    );
   }
 };
 
