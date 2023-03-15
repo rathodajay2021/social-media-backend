@@ -1,7 +1,8 @@
 {
 	"This is the test message": "This is the test message",
 	"STATUS": {
-		"SUCCESS": "STATUS.SUCCESS"
+		"SUCCESS": "STATUS.SUCCESS",
+		"SERVER_ERROR": "STATUS.SERVER_ERROR"
 	},
 	"VALIDATION": {
 		"NOT_FOUND": {
@@ -9,5 +10,9 @@
 		}
 	},
 	"Un-friend successfully": "Un-friend successfully",
-	"New friend added successfully": "New friend added successfully"
+	"New friend added successfully": "New friend added successfully",
+	"New post added successfully": "New post added successfully",
+	"User post updated successfully": "User post updated successfully",
+	"Media file deleted successfully": "Media file deleted successfully",
+	"Your post deleted successfully": "Your post deleted successfully"
 }

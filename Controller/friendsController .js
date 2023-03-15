@@ -1,5 +1,3 @@
-const { friends, users } = require("../Database/Schemas");
-const { Op } = require("sequelize");
 const model = require("../Models/friends.model");
 
 const getFriendList = async (req, res) => {
@@ -26,6 +24,7 @@ const getFriendList = async (req, res) => {
       res.handler.success({ rows: dataToSend, count });
     }
   } catch (error) {
+    res.handler.serverError();
     console.log(
       "🚀 ~ file: friendsController .js:9 ~ getFriendList ~ error:",
       error
@@ -68,6 +67,7 @@ const getAllUserList = async (req, res) => {
       res.handler.success(finalData);
     }
   } catch (error) {
+    res.handler.serverError();
     console.log(
       "🚀 ~ file: friendsController .js:110 ~ getAllUserList ~ error:",
       error
@@ -80,9 +80,10 @@ const addFriend = async (req, res) => {
     const response = await model.addFriendAPI(req.body);
 
     if (response) {
-      res.handler.success(response, "New friend added successfully" );
+      res.handler.success(response, "New friend added successfully");
     }
   } catch (error) {
+    res.handler.serverError();
     console.log(
       "🚀 ~ file: friendsController .js:82 ~ addFriend ~ error:",
       error
@@ -104,14 +105,10 @@ const removeFriend = async (req, res) => {
       );
     }
 
-    const friendsListDeleteTwo = await friends.destroy({
-      where: {
-        [Op.and]: [
-          { userId1: req.body.userId2 },
-          { userId2: req.body.userId1 },
-        ],
-      },
-    });
+    const friendsListDeleteTwo = await model.removeFriendAPI(
+      req.body?.userId2,
+      req.body?.userId1
+    );
 
     if (friendsListDeleteTwo) {
       return res.handler.success(
@@ -120,6 +117,7 @@ const removeFriend = async (req, res) => {
       );
     }
   } catch (error) {
+    res.handler.serverError();
     console.log(
       "🚀 ~ file: friendsController .js:84 ~ removeFriend ~ error:",
       error
