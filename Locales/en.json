@@ -2,5 +2,12 @@
 	"This is the test message": "This is the test message",
 	"STATUS": {
 		"SUCCESS": "STATUS.SUCCESS"
-	}
+	},
+	"VALIDATION": {
+		"NOT_FOUND": {
+			"DATA": "VALIDATION.NOT_FOUND.DATA"
+		}
+	},
+	"Un-friend successfully": "Un-friend successfully",
+	"New friend added successfully": "New friend added successfully"
 }

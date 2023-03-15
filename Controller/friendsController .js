@@ -1,82 +1,44 @@
 const { friends, users } = require("../Database/Schemas");
 const { Op } = require("sequelize");
-const ResponseHandler = require("../Config/responseHandler");
+const model = require("../Models/friends.model");
 
 const getFriendList = async (req, res) => {
-  const userId = req.params.id;
-  const { count, rows } = await friends.findAndCountAll({
-    where: {
-      [Op.or]: [{ userId1: userId }, { userId2: userId }],
-    },
-    include: [
-      {
-        model: users,
-        as: "userOne",
-        attributes: [
-          ["id", "userId"],
-          "firstName",
-          "lastName",
-          "bio",
-          "profilePic",
-        ],
-      },
-      {
-        model: users,
-        as: "userTwo",
-        attributes: [
-          ["id", "userId"],
-          "firstName",
-          "lastName",
-          "bio",
-          "profilePic",
-        ],
-      },
-    ],
-  });
-  if (rows) {
-    let dataToSend = [];
-    for (let index = 0; index < rows.length; index++) {
-      if (rows[index].userId1 === parseInt(userId)) {
-        dataToSend.push({
-          ...rows[index].userTwo.dataValues,
-          isFriend: true,
-        });
-      } else {
-        dataToSend.push({
-          ...rows[index].userOne.dataValues,
-          isFriend: true,
-        });
+  try {
+    const userId = req.params.id;
+    const { rows, count } = await model.getFriendListAPI(userId);
+
+    if (rows) {
+      let dataToSend = [];
+      for (let index = 0; index < rows.length; index++) {
+        if (rows[index].userId1 === parseInt(userId)) {
+          dataToSend.push({
+            ...rows[index].userTwo.dataValues,
+            isFriend: true,
+          });
+        } else {
+          dataToSend.push({
+            ...rows[index].userOne.dataValues,
+            isFriend: true,
+          });
+        }
       }
+
+      res.handler.success({ rows: dataToSend, count });
     }
-    res.json({ rows: dataToSend, count });
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: friendsController .js:9 ~ getFriendList ~ error:",
+      error
+    );
   }
 };
 
 const getAllUserList = async (req, res) => {
   try {
-    // const API_RESPONSE = new ResponseHandler(req, res);
-
     const id = req.params.id;
     let finalData = [];
 
-    const response = await users.findAll({
-      where: { [Op.not]: { id: id } },
-      attributes: ["id", "firstName", "lastName", "bio", "profilePic"],
-      include: [
-        {
-          model: friends,
-          as: "userOne",
-          required: false,
-          where: { userId2: id },
-        },
-        {
-          model: friends,
-          as: "userTwo",
-          required: false,
-          where: { userId1: id },
-        },
-      ],
-    });
+    const response = await model.getAllUserListAPI(id);
 
     if (response) {
       for (let index = 0; index < response.length; index++) {
@@ -104,7 +66,6 @@ const getAllUserList = async (req, res) => {
       }
 
       res.handler.success(finalData);
-      // res.json(finalData);
     }
   } catch (error) {
     console.log(
@@ -114,40 +75,55 @@ const getAllUserList = async (req, res) => {
   }
 };
 
-const addFriend = (req, res) => {
-  friends
-    .create(req.body)
-    .then((result) =>
-      res.json({ result, message: "New friend added successfully" })
-    )
-    .catch((err) => res.json(err));
+const addFriend = async (req, res) => {
+  try {
+    const response = await model.addFriendAPI(req.body);
+
+    if (response) {
+      res.handler.success(response, "New friend added successfully" );
+    }
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: friendsController .js:82 ~ addFriend ~ error:",
+      error
+    );
+  }
 };
 
 const removeFriend = async (req, res) => {
-  const friendsListDeleteOne = await friends.destroy({
-    where: {
-      [Op.and]: [{ userId1: req.body.userId1 }, { userId2: req.body.userId2 }],
-    },
-  });
+  try {
+    const friendsListDeleteOne = await model.removeFriendAPI(
+      req.body?.userId1,
+      req.body?.userId2
+    );
 
-  if (friendsListDeleteOne) {
-    return res.json({
-      friendsListDeleteOne,
-      message: "Un-friend successfully",
+    if (friendsListDeleteOne) {
+      return res.handler.success(
+        friendsListDeleteOne,
+        "Un-friend successfully"
+      );
+    }
+
+    const friendsListDeleteTwo = await friends.destroy({
+      where: {
+        [Op.and]: [
+          { userId1: req.body.userId2 },
+          { userId2: req.body.userId1 },
+        ],
+      },
     });
-  }
 
-  const friendsListDeleteTwo = await friends.destroy({
-    where: {
-      [Op.and]: [{ userId1: req.body.userId2 }, { userId2: req.body.userId1 }],
-    },
-  });
-
-  if (friendsListDeleteTwo) {
-    return res.json({
-      friendsListDeleteTwo,
-      message: "Un-friend is deleted successfully",
-    });
+    if (friendsListDeleteTwo) {
+      return res.handler.success(
+        friendsListDeleteTwo,
+        "Un-friend successfully"
+      );
+    }
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: friendsController .js:84 ~ removeFriend ~ error:",
+      error
+    );
   }
 };
 
