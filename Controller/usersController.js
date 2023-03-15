@@ -2,6 +2,7 @@ const { users } = require("../Database/Schemas");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const APIModel = require("../Models/users.model")
 const { SERVER_PATH } = require("../Helpers/path");
 const deleteFile = require("../Helpers/mediaFile");
 
@@ -50,7 +51,7 @@ const loginUser = (req, res) => {
           return res.json({ message: "Wrong password. Try again." });
         }
       } else {
-        return res.json({ message: "In-valid email address" });
+        return res.json({ message: "User not found" });
       }
     })
     .catch((err) => res.json(err));
@@ -63,7 +64,7 @@ const verifyUser = (req, res) => {
       if (result) {
         return res.json({ isUserVerified: true });
       } else {
-        return res.json({ message: "In-valid email address" });
+        return res.json({ message: "User not found" });
       }
     })
     .catch((err) => res.json(err));

@@ -1,4 +1,3 @@
-const { post_data, postMedia } = require("../Database/Schemas");
 const deleteFile = require("../Helpers/mediaFile");
 const { SERVER_PATH } = require("../Helpers/path");
 const APIModel = require("../Models/post.model");
