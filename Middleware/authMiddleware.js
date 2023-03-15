@@ -4,7 +4,7 @@ const protectedRoutes = (req, res, next) => {
   const token = req.headers["accesstoken"];
 
   if (token) {
-    jwt.verify(token, "openXcell", (err, decode) => {
+    jwt.verify(token, global.secretKey, (err, decode) => {
       if (err) {
         res.status(401).json({message: 'invalid token'});
       } else {

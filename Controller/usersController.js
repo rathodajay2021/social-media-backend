@@ -5,11 +5,8 @@ const jwt = require("jsonwebtoken");
 const { SERVER_PATH } = require("../Helpers/path");
 const deleteFile = require("../Helpers/mediaFile");
 
-const secretKey = "openXcell";
-const maxAge = 1 * 24 * 60 * 60; //in seconds
-
 const createJsonToken = (id) => {
-  return jwt.sign({ id }, secretKey, { expiresIn: maxAge });
+  return jwt.sign({ id }, global.secretKey, { expiresIn: global.tokenAge });
 };
 
 const createUser = async (req, res) => {

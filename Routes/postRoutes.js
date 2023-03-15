@@ -4,7 +4,7 @@ const upload = require("../Helpers/uploader");
 const router = express.Router();
 const controller = require("../Controller/postController");
 const path = require("../Helpers/path");
-const protectedRoutes = require("../Helpers/authMiddleware");
+const protectedRoutes = require("../Middleware/authMiddleware");
 
 // const uploadMiddleware = ;
 router.get(path.GET_ALL_POST_URL, protectedRoutes, controller.getAllPost);

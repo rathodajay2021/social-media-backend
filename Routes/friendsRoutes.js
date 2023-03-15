@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const controller = require("../Controller/friendsController ")
 const path = require("../Helpers/path");
-const protectedRoutes = require("../Helpers/authMiddleware");
+const protectedRoutes = require("../Middleware/authMiddleware");
 
 router.get(`${path.FRIEND_LIST_URL}/:id`, protectedRoutes, controller.getFriendList)
 router.get(`${path.USER_LIST_URL}/:id`, protectedRoutes, controller.getAllUserList)

@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../Controller/usersController");
 const path = require("../Helpers/path");
 const upload = require("../Helpers/uploader");
-const protectedRoutes = require("../Helpers/authMiddleware");
+const protectedRoutes = require("../Middleware/authMiddleware");
 
 router.post(path.LOGIN_URL, controller.loginUser);
 router.post(path.SIGN_UP_URL, controller.createUser);
