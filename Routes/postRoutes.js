@@ -2,7 +2,7 @@ const express = require("express");
 const upload = require("../Helpers/uploader");
 
 const router = express.Router();
-const controller = require("../Controller/postController");
+const controller = new (require("../Controller/postController"))();
 const path = require("../Helpers/path");
 const protectedRoutes = require("../Middleware/authMiddleware");
 

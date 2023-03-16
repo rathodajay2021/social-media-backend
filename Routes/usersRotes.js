@@ -1,7 +1,7 @@
 const express = require("express");
 
 const router = express.Router();
-const controller = require("../Controller/usersController");
+const controller = new (require("../Controller/usersController"))();
 const path = require("../Helpers/path");
 const upload = require("../Helpers/uploader");
 const protectedRoutes = require("../Middleware/authMiddleware");

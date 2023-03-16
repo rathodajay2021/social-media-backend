@@ -1,226 +1,226 @@
 const deleteFile = require("../Helpers/mediaFile");
 const { SERVER_PATH } = require("../Helpers/path");
-const APIModel = require("../Models/post.model");
+const APIModel = new (require("../Models/post.model"))();
 
-const getAllPost = async (req, res) => {
-  try {
-    const response = await APIModel.getAllPostAPI();
+class postController {
+  async getAllPost(req, res) {
+    try {
+      const response = await APIModel.getAllPostAPI();
 
-    if (response) {
-      res.handler.success(response);
+      if (response) {
+        res.handler.success(response);
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:14 ~ getAllPost ~ error:",
+        error
+      );
+      res.handler.serverError();
     }
-  } catch (error) {
-    console.log("🚀 ~ file: postController.js:14 ~ getAllPost ~ error:", error);
-    res.handler.serverError();
   }
-};
 
-const getUserPost = async (req, res) => {
-  try {
-    const userId = req.params.id;
+  async getUserPost(req, res) {
+    try {
+      const userId = req.params.id;
 
-    const response = await APIModel.getUserPostAPI(userId);
+      const response = await APIModel.getUserPostAPI(userId);
 
-    if (response) {
-      res.handler.success(response);
+      if (response) {
+        res.handler.success(response);
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:29 ~ getUserPost ~ error:",
+        error
+      );
+      res.handler.serverError();
     }
-  } catch (error) {
-    console.log(
-      "🚀 ~ file: postController.js:29 ~ getUserPost ~ error:",
-      error
-    );
-    res.handler.serverError();
   }
-};
 
-const getUserFiles = async (req, res) => {
-  try {
-    const postId = req.params.id;
-    const response = await APIModel.getUserFilesAPI(postId);
+  async getUserFiles(req, res) {
+    try {
+      const postId = req.params.id;
+      const response = await APIModel.getUserFilesAPI(postId);
 
-    if (response) {
-      res.handler.success(response);
-    }
-  } catch (error) {
-    res.handler.serverError();
-    console.log(
-      "🚀 ~ file: postController.js:41 ~ getUserFiles ~ error:",
-      error
-    );
-  }
-};
-
-const addPost = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const files = req.files;
-
-    const postTableData = {
-      description: req.body.description,
-      userId: id,
-    };
-
-    if (!files) {
-      return res.handler.validationError(
-        "Attached file is invalid, Please attached valid file"
+      if (response) {
+        res.handler.success(response);
+      }
+    } catch (error) {
+      res.handler.serverError();
+      console.log(
+        "🚀 ~ file: postController.js:41 ~ getUserFiles ~ error:",
+        error
       );
     }
+  }
 
-    const postResult = await APIModel.addPostAPI(postTableData);
+  async addPost(req, res) {
+    try {
+      const id = req.params.id;
+      const files = req.files;
 
-    if (postResult) {
-      if (!!files?.mediaData) {
-        for (let i = 0; i < files?.mediaData.length; i++) {
-          let mediaType;
+      const postTableData = {
+        description: req.body.description,
+        userId: id,
+      };
 
-          if (
-            files.mediaData[i].mimetype === "image/jpeg" ||
-            files.mediaData[i].mimetype === "image/jpg" ||
-            files.mediaData[i].mimetype === "image/png"
-          ) {
-            mediaType = "img";
-          } else {
-            mediaType = "video";
-          }
-
-          let MediaTableData = {
-            postId: postResult.dataValues.id,
-            mediaPath: SERVER_PATH + files.mediaData[i].path,
-            mediaType,
-          };
-
-          await APIModel.createPostMedia(MediaTableData);
-        }
+      if (!files) {
+        return res.handler.validationError(
+          "Attached file is invalid, Please attached valid file"
+        );
       }
 
-      res.handler.success(
-        { postResult, isSuccess: true },
-        "New post added successfully"
-      );
-    }
-  } catch (error) {
-    console.log("🚀 ~ file: postController.js:103 ~ addPost ~ error:", error);
-    res.handler.serverError();
-  }
-};
+      const postResult = await APIModel.addPostAPI(postTableData);
 
-const editPost = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const files = req.files;
+      if (postResult) {
+        if (!!files?.mediaData) {
+          for (let i = 0; i < files?.mediaData.length; i++) {
+            let mediaType;
 
-    const tableData = {
-      description: req.body.description,
-    };
+            if (
+              files.mediaData[i].mimetype === "image/jpeg" ||
+              files.mediaData[i].mimetype === "image/jpg" ||
+              files.mediaData[i].mimetype === "image/png"
+            ) {
+              mediaType = "img";
+            } else {
+              mediaType = "video";
+            }
 
-    if (!files) {
-      return res.handler.validationError(
-        "Attached file is invalid, Please attached valid file"
-      );
-    }
+            let MediaTableData = {
+              postId: postResult.dataValues.id,
+              mediaPath: SERVER_PATH + files.mediaData[i].path,
+              mediaType,
+            };
 
-    const response = await APIModel.editPostAPI(tableData, id);
-
-    if (response) {
-      if (!!files?.mediaData) {
-        for (let i = 0; i < files?.mediaData.length; i++) {
-          let mediaType;
-
-          if (
-            files.mediaData[i].mimetype === "image/jpeg" ||
-            files.mediaData[i].mimetype === "image/jpg" ||
-            files.mediaData[i].mimetype === "image/png" ||
-            files.mediaData[i].mimetype === "img"
-          ) {
-            mediaType = "img";
-          } else {
-            mediaType = "video";
+            await APIModel.createPostMedia(MediaTableData);
           }
-
-          let MediaTableData = {
-            postId: id,
-            mediaPath: SERVER_PATH + files.mediaData[i].path,
-            mediaType,
-          };
-          //add new media
-          await APIModel.createPostMedia(MediaTableData);
         }
+
+        res.handler.success(
+          { postResult, isSuccess: true },
+          "New post added successfully"
+        );
+      }
+    } catch (error) {
+      console.log("🚀 ~ file: postController.js:103 ~ addPost ~ error:", error);
+      res.handler.serverError();
+    }
+  }
+
+  async editPost(req, res) {
+    try {
+      const id = req.params.id;
+      const files = req.files;
+
+      const tableData = {
+        description: req.body.description,
+      };
+
+      if (!files) {
+        return res.handler.validationError(
+          "Attached file is invalid, Please attached valid file"
+        );
       }
 
-      res.handler.success(
-        { response, isSuccess: true },
-        "User post updated successfully"
+      const response = await APIModel.editPostAPI(tableData, id);
+
+      if (response) {
+        if (!!files?.mediaData) {
+          for (let i = 0; i < files?.mediaData.length; i++) {
+            let mediaType;
+
+            if (
+              files.mediaData[i].mimetype === "image/jpeg" ||
+              files.mediaData[i].mimetype === "image/jpg" ||
+              files.mediaData[i].mimetype === "image/png" ||
+              files.mediaData[i].mimetype === "img"
+            ) {
+              mediaType = "img";
+            } else {
+              mediaType = "video";
+            }
+
+            let MediaTableData = {
+              postId: id,
+              mediaPath: SERVER_PATH + files.mediaData[i].path,
+              mediaType,
+            };
+            //add new media
+            await APIModel.createPostMedia(MediaTableData);
+          }
+        }
+
+        res.handler.success(
+          { response, isSuccess: true },
+          "User post updated successfully"
+        );
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:157 ~ editPost ~ error:",
+        error
       );
+      res.handler.serverError();
     }
-  } catch (error) {
-    console.log("🚀 ~ file: postController.js:157 ~ editPost ~ error:", error);
-    res.handler.serverError();
   }
-};
 
-const deletePostMedia = async (req, res, next) => {
-  try {
-    const mediaId = req.params.id;
+  async deletePostMedia(req, res, next) {
+    try {
+      const mediaId = req.params.id;
 
-    const result = await APIModel.findOneMediaAPI(mediaId);
+      const result = await APIModel.findOneMediaAPI(mediaId);
 
-    if (result) {
-      tempMediaPath = result.dataValues.mediaPath.replace(SERVER_PATH, "");
-      deleteFile(tempMediaPath);
-    }
-
-    const response = await APIModel.deletePostMediaAPI(mediaId);
-
-    if (response) {
-      res.handler.success(response, "Media file deleted successfully");
-    }
-  } catch (error) {
-    console.log(
-      "🚀 ~ file: postController.js:175 ~ deletePostMedia ~ error:",
-      error
-    );
-    res.handler.serverError();
-  }
-};
-
-const deletePost = async (req, res, next) => {
-  try {
-    const id = req.params.id;
-
-    //clear media files
-    const postResult = await APIModel.findAllPostMediaAPI(id);
-
-    if (!postResult) {
-      return next(new Error("Media file not found"));
-    }
-
-    if (postResult) {
-      for (let i = 0; i < postResult.length; i++) {
-        tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
+      if (result) {
+        tempMediaPath = result.dataValues.mediaPath.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
-    }
 
-    const response = await APIModel.destroyPostAPI(id);
+      const response = await APIModel.deletePostMediaAPI(mediaId);
 
-    if (response) {
-      res.handler.success(response, "Your post deleted successfully");
+      if (response) {
+        res.handler.success(response, "Media file deleted successfully");
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:175 ~ deletePostMedia ~ error:",
+        error
+      );
+      res.handler.serverError();
     }
-  } catch (error) {
-    console.log(
-      "🚀 ~ file: postController.js:205 ~ deletePost ~ error:",
-      error
-    );
-    res.handler.serverError();
   }
-};
 
-module.exports = {
-  getAllPost,
-  getUserPost,
-  getUserFiles,
-  addPost,
-  editPost,
-  deletePostMedia,
-  deletePost,
-};
+  async deletePost(req, res, next) {
+    try {
+      const id = req.params.id;
+
+      //clear media files
+      const postResult = await APIModel.findAllPostMediaAPI(id);
+
+      if (!postResult) {
+        return next(new Error("Media file not found"));
+      }
+
+      if (postResult) {
+        for (let i = 0; i < postResult.length; i++) {
+          tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
+          deleteFile(tempMediaPath);
+        }
+      }
+
+      const response = await APIModel.destroyPostAPI(id);
+
+      if (response) {
+        res.handler.success(response, "Your post deleted successfully");
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:205 ~ deletePost ~ error:",
+        error
+      );
+      res.handler.serverError();
+    }
+  }
+}
+
+module.exports = postController;

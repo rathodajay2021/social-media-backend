@@ -1,136 +1,133 @@
-const model = require("../Models/friends.model");
+const APIModel = new (require("../Models/friends.model"))();
 
-const getFriendList = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { rows, count } = await model.getFriendListAPI(userId);
+class friendsController {
+  async getFriendList(req, res) {
+    try {
+      const userId = req.params.id;
+      const { rows, count } = await APIModel.getFriendListAPI(userId);
 
-    if (rows) {
-      let dataToSend = [];
-      for (let index = 0; index < rows.length; index++) {
-        if (rows[index].userId1 === parseInt(userId)) {
-          dataToSend.push({
-            ...rows[index].userTwo.dataValues,
-            isFriend: true,
-          });
-        } else {
-          dataToSend.push({
-            ...rows[index].userOne.dataValues,
-            isFriend: true,
-          });
+      if (rows) {
+        let dataToSend = [];
+        for (let index = 0; index < rows.length; index++) {
+          if (rows[index].userId1 === parseInt(userId)) {
+            dataToSend.push({
+              ...rows[index].userTwo.dataValues,
+              isFriend: true,
+            });
+          } else {
+            dataToSend.push({
+              ...rows[index].userOne.dataValues,
+              isFriend: true,
+            });
+          }
         }
+
+        res.handler.success({ rows: dataToSend, count });
       }
-
-      res.handler.success({ rows: dataToSend, count });
-    }
-  } catch (error) {
-    res.handler.serverError();
-    console.log(
-      "🚀 ~ file: friendsController .js:9 ~ getFriendList ~ error:",
-      error
-    );
-  }
-};
-
-const getAllUserList = async (req, res) => {
-  try {
-    const id = req.params.id;
-    let finalData = [];
-
-    const response = await model.getAllUserListAPI(id);
-
-    if (response) {
-      for (let index = 0; index < response.length; index++) {
-        let tempObj = {
-          userId: response[index].dataValues.id,
-          firstName: response[index].dataValues.firstName,
-          lastName: response[index].dataValues.lastName,
-          bio: response[index].dataValues.bio,
-          profilePic: response[index].dataValues.profilePic,
-        };
-        if (
-          !!response[index].dataValues.userOne.length ||
-          !!response[index].dataValues.userTwo.length
-        ) {
-          finalData.push({
-            ...tempObj,
-            isFriend: true,
-          });
-        } else {
-          finalData.push({
-            ...tempObj,
-            isFriend: false,
-          });
-        }
-      }
-
-      res.handler.success(finalData);
-    }
-  } catch (error) {
-    res.handler.serverError();
-    console.log(
-      "🚀 ~ file: friendsController .js:110 ~ getAllUserList ~ error:",
-      error
-    );
-  }
-};
-
-const addFriend = async (req, res) => {
-  try {
-    const response = await model.addFriendAPI(req.body);
-
-    if (response) {
-      res.handler.success(response, "New friend added successfully");
-    }
-  } catch (error) {
-    res.handler.serverError();
-    console.log(
-      "🚀 ~ file: friendsController .js:82 ~ addFriend ~ error:",
-      error
-    );
-  }
-};
-
-const removeFriend = async (req, res) => {
-  try {
-    const friendsListDeleteOne = await model.removeFriendAPI(
-      req.body?.userId1,
-      req.body?.userId2
-    );
-
-    if (friendsListDeleteOne) {
-      return res.handler.success(
-        friendsListDeleteOne,
-        "Un-friend successfully"
+    } catch (error) {
+      res.handler.serverError();
+      console.log(
+        "🚀 ~ file: friendsController .js:9 ~ getFriendList ~ error:",
+        error
       );
     }
+  }
 
-    const friendsListDeleteTwo = await model.removeFriendAPI(
-      req.body?.userId2,
-      req.body?.userId1
-    );
+  async getAllUserList(req, res) {
+    try {
+      const id = req.params.id;
+      let finalData = [];
 
-    if (friendsListDeleteTwo) {
-      return res.handler.success(
-        friendsListDeleteTwo,
-        "Un-friend successfully"
+      const response = await APIModel.getAllUserListAPI(id);
+
+      if (response) {
+        for (let index = 0; index < response.length; index++) {
+          let tempObj = {
+            userId: response[index].dataValues.id,
+            firstName: response[index].dataValues.firstName,
+            lastName: response[index].dataValues.lastName,
+            bio: response[index].dataValues.bio,
+            profilePic: response[index].dataValues.profilePic,
+          };
+          if (
+            !!response[index].dataValues.userOne.length ||
+            !!response[index].dataValues.userTwo.length
+          ) {
+            finalData.push({
+              ...tempObj,
+              isFriend: true,
+            });
+          } else {
+            finalData.push({
+              ...tempObj,
+              isFriend: false,
+            });
+          }
+        }
+
+        res.handler.success(finalData);
+      }
+    } catch (error) {
+      res.handler.serverError();
+      console.log(
+        "🚀 ~ file: friendsController .js:110 ~ getAllUserList ~ error:",
+        error
       );
     }
-  } catch (error) {
-    res.handler.serverError();
-    console.log(
-      "🚀 ~ file: friendsController .js:84 ~ removeFriend ~ error:",
-      error
-    );
   }
-};
 
-module.exports = {
-  getFriendList,
-  getAllUserList,
-  addFriend,
-  removeFriend,
-};
+  async addFriend(req, res) {
+    try {
+      const response = await APIModel.addFriendAPI(req.body);
+
+      if (response) {
+        res.handler.success(response, "New friend added successfully");
+      }
+    } catch (error) {
+      res.handler.serverError();
+      console.log(
+        "🚀 ~ file: friendsController .js:82 ~ addFriend ~ error:",
+        error
+      );
+    }
+  }
+
+  async removeFriend(req, res) {
+    try {
+      const friendsListDeleteOne = await APIModel.removeFriendAPI(
+        req.body?.userId1,
+        req.body?.userId2
+      );
+
+      if (friendsListDeleteOne) {
+        return res.handler.success(
+          friendsListDeleteOne,
+          "Un-friend successfully"
+        );
+      }
+
+      const friendsListDeleteTwo = await APIModel.removeFriendAPI(
+        req.body?.userId2,
+        req.body?.userId1
+      );
+
+      if (friendsListDeleteTwo) {
+        return res.handler.success(
+          friendsListDeleteTwo,
+          "Un-friend successfully"
+        );
+      }
+    } catch (error) {
+      res.handler.serverError();
+      console.log(
+        "🚀 ~ file: friendsController .js:84 ~ removeFriend ~ error:",
+        error
+      );
+    }
+  }
+}
+
+module.exports = friendsController;
 
 // SELECT
 //   *
