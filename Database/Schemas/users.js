@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(post_data, { foreignKey: "userId" });
 
-      this.hasMany(friends, { as: "userOne", foreignKey: "userId1" });
-      this.hasMany(friends, { as: "userTwo", foreignKey: "userId2" });
+      this.hasMany(friends, { as: "userOne", foreignKey: "senderId" });
+      this.hasMany(friends, { as: "userTwo", foreignKey: "receiverId" });
     }
   }
   users.init(

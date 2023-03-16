@@ -95,8 +95,8 @@ class friendsController {
   async removeFriend(req, res) {
     try {
       const friendsListDeleteOne = await APIModel.removeFriendAPI(
-        req.body?.userId1,
-        req.body?.userId2
+        req.body?.senderId,
+        req.body?.receiverId
       );
 
       if (friendsListDeleteOne) {
@@ -107,8 +107,8 @@ class friendsController {
       }
 
       const friendsListDeleteTwo = await APIModel.removeFriendAPI(
-        req.body?.userId2,
-        req.body?.userId1
+        req.body?.receiverId,
+        req.body?.senderId
       );
 
       if (friendsListDeleteTwo) {

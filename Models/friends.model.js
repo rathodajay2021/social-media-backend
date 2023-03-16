@@ -5,7 +5,7 @@ class friend {
   async getFriendListAPI(userId) {
     return await friends.findAndCountAll({
       where: {
-        [Op.or]: [{ userId1: userId }, { userId2: userId }],
+        [Op.or]: [{ senderId: userId }, { receiverId: userId }],
       },
       include: [
         {
@@ -43,13 +43,13 @@ class friend {
           model: friends,
           as: "userOne",
           required: false,
-          where: { userId2: id },
+          where: { receiverId: id },
         },
         {
           model: friends,
           as: "userTwo",
           required: false,
-          where: { userId1: id },
+          where: { senderId: id },
         },
       ],
     });
@@ -62,7 +62,7 @@ class friend {
   async removeFriendAPI(userId1, userId2) {
     return await friends.destroy({
       where: {
-        [Op.and]: [{ userId1: userId1 }, { userId2: userId2 }],
+        [Op.and]: [{ senderId: userId1 }, { receiverId: userId2 }],
       },
     });
   }
