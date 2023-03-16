@@ -1,8 +1,7 @@
-const { users } = require("../Database/Schemas");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const APIModel = require("../Models/users.model")
+const APIModel = require("../Models/users.model");
 const { SERVER_PATH } = require("../Helpers/path");
 const deleteFile = require("../Helpers/mediaFile");
 
@@ -11,145 +10,161 @@ const createJsonToken = (id) => {
 };
 
 const createUser = async (req, res) => {
-  const salt = await bcrypt.genSalt();
-  const hashPassword = await bcrypt.hash(req.body.password, salt);
+  try {
+    const userExist = await APIModel.verifyUserAPI(req.body.email);
 
-  const Data = {
-    firstName: req.body.firstName.trim(),
-    lastName: req.body.lastName.trim(),
-    email: req.body.email,
-    password: hashPassword,
-  };
+    if (userExist) {
+      return res.handler.forbidden(
+        "User with that email id already exist, Please try new email id"
+      );
+    }
 
-  users
-    .create(Data)
-    .then((userResult) => {
-      const token = createJsonToken(userResult.id);
-      userResult.dataValues["accessToken"] = token;
-      userResult.dataValues["isUserVerified"] = true;
-      return res.json(userResult);
-    })
-    .catch((err) =>
-      res.status(422).json({
-        message: `${err.errors[0].message}, this mail id is already in use try another email`,
-      })
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+    const Data = {
+      firstName: req.body.firstName.trim(),
+      lastName: req.body.lastName.trim(),
+      email: req.body.email,
+      password: hashPassword,
+    };
+
+    const response = await APIModel.createUserAPI(Data);
+
+    if (response) {
+      const token = createJsonToken(response.id);
+      response.dataValues["accessToken"] = token;
+      response.dataValues["isUserVerified"] = true;
+      res.handler.success(response, "New user created successfully");
+    }
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: usersController.js:42 ~ createUser ~ error:",
+      error
     );
+    res.handler.serverError();
+  }
 };
 
-const loginUser = (req, res) => {
-  users
-    .findOne({ where: { email: req.body.email } })
-    .then(async (result) => {
-      if (result) {
-        const auth = await bcrypt.compare(req.body.password, result.password);
-        if (auth) {
-          const token = createJsonToken(result.id);
-          result.dataValues["accessToken"] = token;
-          result.dataValues["isUserVerified"] = true;
-          return res.json(result);
-        } else {
-          return res.json({ message: "Wrong password. Try again." });
-        }
+const loginUser = async (req, res) => {
+  try {
+    const response = await APIModel.verifyUserAPI(req.body.email);
+
+    if (response) {
+      const auth = await bcrypt.compare(req.body.password, response.password);
+      if (auth) {
+        const token = createJsonToken(response.id);
+        response.dataValues["accessToken"] = token;
+        response.dataValues["isUserVerified"] = true;
+        res.handler.success(response);
       } else {
-        return res.json({ message: "User not found" });
+        res.handler.notFound("Wrong password. Try again");
       }
-    })
-    .catch((err) => res.json(err));
+    } else {
+      res.handler.notFound("User not found");
+    }
+  } catch (error) {
+    console.log("🚀 ~ file: usersController.js:68 ~ loginUser ~ error:", error);
+    res.handler.serverError();
+  }
 };
 
-const verifyUser = (req, res) => {
-  users
-    .findOne({ where: { email: req.body.email } })
-    .then((result) => {
-      if (result) {
-        return res.json({ isUserVerified: true });
-      } else {
-        return res.json({ message: "User not found" });
-      }
-    })
-    .catch((err) => res.json(err));
+const verifyUser = async (req, res) => {
+  try {
+    const response = await APIModel.verifyUserAPI(req.body.email);
+
+    if (response) {
+      return res.handler.success({ response, isUserVerified: true });
+    }
+    res.handler.notFound("User not found");
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: usersController.js:82 ~ verifyUser ~ error:",
+      error
+    );
+    res.handler.serverError();
+  }
 };
 
 const resetPassword = async (req, res) => {
-  const salt = await bcrypt.genSalt();
-  const hashPassword = await bcrypt.hash(req.body.password, salt);
+  try {
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-  users
-    .update({ password: hashPassword }, { where: { email: req.body.email } })
-    .then((result) => {
-      if (result[0] === 1)
-        return res.json({
-          message: "Password reset successfully",
-          isUserVerified: true,
-        });
+    const response = await APIModel.resetPasswordAPI(
+      req.body.email,
+      hashPassword
+    );
 
-      res.json({ message: "Something went wrong" });
-    })
-    .catch((err) => res.json(err));
+    if (response[0] === 1) {
+      return res.handler.success(response, "Password reset successfully");
+    }
+    res.handler.serverError();
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: usersController.js:102 ~ resetPassword ~ error:",
+      error
+    );
+    res.handler.serverError();
+  }
 };
 
-const editUserDetails = (req, res) => {
-  const userId = req.params.id;
-  const files = req.files;
-  const data = {
-    firstName: req.body?.firstName.trim(),
-    lastName: req.body?.lastName.trim(),
-    bio: req.body?.bio,
-    dob: req.body?.dob,
-  };
+const editUserDetails = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const files = req.files;
+    const data = {
+      firstName: req.body?.firstName.trim(),
+      lastName: req.body?.lastName.trim(),
+      bio: req.body?.bio,
+      dob: req.body?.dob,
+    };
 
-  if (!!files.coverPic) data["coverPic"] = SERVER_PATH + files.coverPic[0].path;
-  if (!!files.profilePic)
-    data["profilePic"] = SERVER_PATH + files.profilePic[0].path;
+    if (!!files.coverPic)
+      data["coverPic"] = SERVER_PATH + files.coverPic[0].path;
+    if (!!files.profilePic)
+      data["profilePic"] = SERVER_PATH + files.profilePic[0].path;
 
-  if (req.body.coverPicUrl === "null") data["coverPic"] = null;
-  if (req.body.profilePicUrl === "null") data["profilePic"] = null;
+    if (req.body.coverPicUrl === "null") data["coverPic"] = null;
+    if (req.body.profilePicUrl === "null") data["profilePic"] = null;
 
-  // delete media if exist on new pic or delete of pic
-  users
-    .findOne({
-      where: {
-        id: userId,
-      },
-    })
-    .then((userResult) => {
+    // delete media if exist on new pic or delete of pic
+    const user = await APIModel.findUserAPI(userId);
+
+    if (user) {
       if (
-        userResult.coverPic &&
+        user.coverPic &&
         (!!files.coverPic || req.body.coverPicUrl === "null")
       ) {
-        tempMediaPath = userResult.coverPic.replace(SERVER_PATH, "");
+        tempMediaPath = user.coverPic.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
       if (
-        userResult.profilePic &&
+        user.profilePic &&
         (!!files.profilePic || req.body.profilePicUrl === "null")
       ) {
-        tempMediaPath = userResult.profilePic.replace(SERVER_PATH, "");
+        tempMediaPath = user.profilePic.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
-    })
-    .catch((err) => console.log(err));
+    }
 
-  // update user details
-  users
-    .update(data, {
-      where: {
-        id: userId,
-      },
-    })
-    .then((result) => {
-      if (result[0] === 1)
-        return res.json({
-          message: "user details updated successfully",
-          isSuccess: true,
-        });
+    const response = await APIModel.updateUserAPI(data, userId);
 
-      res.json({
-        message: "something went wrong",
-        isSuccess: false,
-      });
-    })
-    .catch((err) => res.json(err));
+    if (response[0] === 1) {
+      return res.handler.success(
+        { response, isSuccess: true },
+        "user details updated successfully"
+      );
+    }
+
+    res.handler.serverError();
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: usersController.js:163 ~ editUserDetails ~ error:",
+      error
+    );
+    res.handler.serverError();
+  }
 };
 
 module.exports = {
