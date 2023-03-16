@@ -50,7 +50,7 @@ app.listen({ port: PORT }, async () => {
   console.log("database connected");
 });
 
-// --------------------------    ROUTES    ------------------
+//ROUTES
 const appRoutes = require("./Routes");
 appRoutes(app);
 
