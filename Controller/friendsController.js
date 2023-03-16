@@ -37,21 +37,22 @@ class friendsController {
     try {
       const id = req.params.id;
       let finalData = [];
+      console.log(req.body.search)
 
-      const response = await APIModel.getAllUserListAPI(id);
+      const { rows, count } = await APIModel.getAllUserListAPI(id, req.body);
 
-      if (response) {
-        for (let index = 0; index < response.length; index++) {
+      if (rows) {
+        for (let index = 0; index < rows.length; index++) {
           let tempObj = {
-            userId: response[index].dataValues.id,
-            firstName: response[index].dataValues.firstName,
-            lastName: response[index].dataValues.lastName,
-            bio: response[index].dataValues.bio,
-            profilePic: response[index].dataValues.profilePic,
+            userId: rows[index].dataValues.id,
+            firstName: rows[index].dataValues.firstName,
+            lastName: rows[index].dataValues.lastName,
+            bio: rows[index].dataValues.bio,
+            profilePic: rows[index].dataValues.profilePic,
           };
           if (
-            !!response[index].dataValues.userOne.length ||
-            !!response[index].dataValues.userTwo.length
+            !!rows[index].dataValues.userOne.length ||
+            !!rows[index].dataValues.userTwo.length
           ) {
             finalData.push({
               ...tempObj,
@@ -65,7 +66,7 @@ class friendsController {
           }
         }
 
-        res.handler.success(finalData);
+        res.handler.success({ rows: finalData, count });
       }
     } catch (error) {
       res.handler.serverError();

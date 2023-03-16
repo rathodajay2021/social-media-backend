@@ -1,5 +1,6 @@
 const { friends, users } = require("../Database/Schemas");
 const { Op } = require("sequelize");
+const sequelize = require("sequelize");
 
 class friend {
   async getFriendListAPI(userId) {
@@ -34,9 +35,35 @@ class friend {
     });
   }
 
-  async getAllUserListAPI(id) {
-    return await users.findAll({
-      where: { [Op.not]: { id: id } },
+  async getAllUserListAPI(id, paginationInfo) {
+    return await users.findAndCountAll({
+      where: {
+        [Op.not]: { id: id },
+        [Op.or]: [
+          sequelize.where(
+            sequelize.fn(
+              "concat",
+              sequelize.col("firstName"),
+              " ",
+              sequelize.col("lastName")
+            ),
+            {
+              [Op.like]: "%" + paginationInfo.search + "%",
+            }
+          ),
+          sequelize.where(
+            sequelize.fn(
+              "concat",
+              sequelize.col("lastName"),
+              " ",
+              sequelize.col("firstName")
+            ),
+            {
+              [Op.like]: "%" + paginationInfo.search + "%",
+            }
+          ),
+        ],
+      },
       attributes: ["id", "firstName", "lastName", "bio", "profilePic"],
       include: [
         {
@@ -52,6 +79,8 @@ class friend {
           where: { senderId: id },
         },
       ],
+      limit: paginationInfo.per_page,
+      offset: paginationInfo.per_page * paginationInfo.page,
     });
   }
 
