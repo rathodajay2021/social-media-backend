@@ -1,7 +1,7 @@
 const express = require('express')
 
 const router = express.Router()
-const controller = new (require("../Controller/friendsController "))()
+const controller = new (require("../Controller/friendsController"))()
 const path = require("../Helpers/path");
 const protectedRoutes = require("../Middleware/authMiddleware");
 

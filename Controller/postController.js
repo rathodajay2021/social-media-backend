@@ -5,10 +5,10 @@ const APIModel = new (require("../Models/post.model"))();
 class postController {
   async getAllPost(req, res) {
     try {
-      const response = await APIModel.getAllPostAPI();
+      const {rows, count} = await APIModel.getAllPostAPI(req.body);
 
-      if (response) {
-        res.handler.success(response);
+      if (rows) {
+        res.handler.success({rows, count});
       }
     } catch (error) {
       console.log(

@@ -1,8 +1,8 @@
 const { post_data, postMedia, users } = require("../Database/Schemas");
 
 class post {
-  async getAllPostAPI() {
-    return await post_data.findAll({
+  async getAllPostAPI(paginationInfo) {
+    return await post_data.findAndCountAll({
       attributes: [["id", "postId"], "description", "createdAt"],
       include: [
         {
@@ -14,7 +14,10 @@ class post {
           attributes: [["id", "userId"], "firstName", "lastName", "profilePic"],
         },
       ],
+      distinct: true,
       order: [["createdAt", "DESC"]],
+      limit: paginationInfo.per_page,
+      offset: paginationInfo.per_page * paginationInfo.page,
     });
   }
 
