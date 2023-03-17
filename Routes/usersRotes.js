@@ -6,6 +6,7 @@ const path = require("../Helpers/path");
 const upload = require("../Helpers/uploader");
 const protectedRoutes = require("../Middleware/authMiddleware");
 
+router.get(`${path.GET_USER_DATA}/:id`, protectedRoutes, controller.getUserData);
 router.post(path.LOGIN_URL, controller.loginUser);
 router.post(path.SIGN_UP_URL, controller.createUser);
 router.post(path.VERIFY_URL, controller.verifyUser);

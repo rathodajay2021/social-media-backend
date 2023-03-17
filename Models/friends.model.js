@@ -79,8 +79,9 @@ class friend {
           where: { senderId: id },
         },
       ],
-      limit: paginationInfo.per_page,
-      offset: paginationInfo.per_page * paginationInfo.page,
+      distinct: true,
+      limit: paginationInfo.perPage,
+      offset: paginationInfo.perPage * paginationInfo.page,
     });
   }
 

@@ -20,6 +20,22 @@ class User {
   async updateUserAPI(data, id) {
     return await users.update(data, { where: { id } });
   }
+
+  async getUserDataAPI(id) {
+    return await users.findOne({
+      where: { id },
+      attributes: [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "bio",
+        "dob",
+        "profilePic",
+        "coverPic",
+      ],
+    });
+  }
 }
 
 module.exports = User;

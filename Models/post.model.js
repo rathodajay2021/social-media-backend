@@ -16,27 +16,26 @@ class post {
       ],
       distinct: true,
       order: [["createdAt", "DESC"]],
-      limit: paginationInfo.per_page,
-      offset: paginationInfo.per_page * paginationInfo.page,
+      limit: paginationInfo.perPage,
+      offset: paginationInfo.perPage * paginationInfo.page,
     });
   }
 
-  async getUserPostAPI(userId) {
-    return await users.findOne({
+  async getUserPostAPI(userId, paginationInfo) {
+    return await post_data.findAndCountAll({
       where: {
-        id: userId,
+        userId
       },
+      attributes: [["id", "postId"], "description", "createdAt"],
       include: {
-        model: post_data,
-        attributes: [["id", "postId"], "description", "createdAt"],
-        include: [
-          {
-            model: postMedia,
-            attributes: ["mediaPath", "mediaType"],
-          },
-        ],
-        order: [["createdAt", "DESC"]],
+        model: postMedia,
+        attributes: ["mediaPath", "mediaType"],
       },
+      // order: [[{ model: post_data }, "createdAt", "DESC"]],
+      order: [["createdAt", "DESC"]],
+      distinct: true,
+      limit: paginationInfo.perPage,
+      offset: paginationInfo.perPage * paginationInfo.page,
     });
   }
 

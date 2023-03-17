@@ -23,10 +23,10 @@ class postController {
     try {
       const userId = req.params.id;
 
-      const response = await APIModel.getUserPostAPI(userId);
+      const {rows, count} = await APIModel.getUserPostAPI(userId, req.body);
 
-      if (response) {
-        res.handler.success(response);
+      if (rows) {
+        res.handler.success({rows, count});
       }
     } catch (error) {
       console.log(
@@ -172,7 +172,7 @@ class postController {
       const result = await APIModel.findOneMediaAPI(mediaId);
 
       if (result) {
-        tempMediaPath = result.dataValues.mediaPath.replace(SERVER_PATH, "");
+        const tempMediaPath = result.dataValues.mediaPath.replace(SERVER_PATH, "");
         deleteFile(tempMediaPath);
       }
 
@@ -203,7 +203,7 @@ class postController {
 
       if (postResult) {
         for (let i = 0; i < postResult.length; i++) {
-          tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
+          const tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
           deleteFile(tempMediaPath);
         }
       }

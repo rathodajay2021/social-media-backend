@@ -147,14 +147,14 @@ class userController {
           user.coverPic &&
           (!!files.coverPic || req.body.coverPicUrl === "null")
         ) {
-          tempMediaPath = user.coverPic.replace(SERVER_PATH, "");
+          const tempMediaPath = user.coverPic.replace(SERVER_PATH, "");
           deleteFile(tempMediaPath);
         }
         if (
           user.profilePic &&
           (!!files.profilePic || req.body.profilePicUrl === "null")
         ) {
-          tempMediaPath = user.profilePic.replace(SERVER_PATH, "");
+          const tempMediaPath = user.profilePic.replace(SERVER_PATH, "");
           deleteFile(tempMediaPath);
         }
       }
@@ -172,6 +172,22 @@ class userController {
     } catch (error) {
       console.log(
         "🚀 ~ file: usersController.js:163 ~ editUserDetails ~ error:",
+        error
+      );
+      res.handler.serverError();
+    }
+  }
+
+  async getUserData(req, res) {
+    try {
+      const response = await APIModel.getUserDataAPI(req.params.id);
+
+      if (response) {
+        res.handler.success(response)
+      }
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: usersController.js:192 ~ userController ~ getUserData ~ error:",
         error
       );
       res.handler.serverError();

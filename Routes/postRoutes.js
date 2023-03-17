@@ -8,7 +8,7 @@ const protectedRoutes = require("../Middleware/authMiddleware");
 
 // const uploadMiddleware = ;
 router.post(path.GET_ALL_POST_URL, protectedRoutes, controller.getAllPost);
-router.get(
+router.post(
   `${path.GET_USER_POST_URL}/:id`,
   protectedRoutes,
   controller.getUserPost
