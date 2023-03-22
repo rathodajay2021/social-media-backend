@@ -19,7 +19,10 @@ const GET_USER_FILE_URL = "/get-user-file";
 const GET_USER_DATA = "/get-user-data";
 const ADD_LIKE = "/add-likes";
 const DELETE_LIKE = "/delete-likes";
+const GET_COMMENT = "/get-comment";
 const ADD_COMMENT = "/add-comment";
+const EDIT_COMMENT = "/edit-comment";
+const DELETE_COMMENT = "/delete-comment";
 
 module.exports = {
   DEFAULT_URL,
@@ -43,5 +46,8 @@ module.exports = {
   GET_USER_DATA,
   ADD_LIKE,
   DELETE_LIKE,
-  ADD_COMMENT
+  GET_COMMENT,
+  ADD_COMMENT,
+  EDIT_COMMENT,
+  DELETE_COMMENT
 };

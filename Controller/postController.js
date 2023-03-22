@@ -2,6 +2,7 @@ const deleteFile = require("../Helpers/mediaFile");
 const { SERVER_PATH } = require("../Helpers/path");
 const APIModel = new (require("../Models/post.model"))();
 const likeAPIModel = new (require("../Models/likes.model"))();
+const commentAPIModel = new (require("../Models/comments.model"))();
 
 class postController {
   constructor() {
@@ -10,7 +11,7 @@ class postController {
 
   async addLikesData(rows, userId) {
     try {
-      const data = []
+      const data = [];
       for (let index = 0; index < rows.length; index++) {
         const likesCount = await likeAPIModel.getLikeCountAPI(
           rows[index]?.dataValues?.postId
@@ -28,7 +29,7 @@ class postController {
         });
       }
 
-      return data
+      return data;
     } catch (error) {
       console.log(
         "🚀 ~ file: postController.js:26 ~ postController ~ addLikesData ~ error:",
@@ -42,12 +43,16 @@ class postController {
     try {
       const { rows, count } = await APIModel.getAllPostAPI(req.body);
       const userId = req.params.id;
-      const postData = []
+      const postData = [];
 
       if (rows) {
         // const postData = await this.addLikesData(rows, userId)
         for (let index = 0; index < rows.length; index++) {
           const likesCount = await likeAPIModel.getLikeCountAPI(
+            rows[index]?.dataValues?.postId
+          );
+
+          const commentCount = await commentAPIModel.getCommentCountAPI(
             rows[index]?.dataValues?.postId
           );
 
@@ -59,6 +64,7 @@ class postController {
           postData.push({
             ...rows[index]?.dataValues,
             likesCount,
+            commentCount,
             userLiked: userLiked ? true : false,
           });
         }
@@ -82,8 +88,11 @@ class postController {
 
       if (rows) {
         for (let index = 0; index < rows.length; index++) {
-          console.log(rows[index]?.dataValues?.postId);
           const likesCount = await likeAPIModel.getLikeCountAPI(
+            rows[index]?.dataValues?.postId
+          );
+
+          const commentCount = await commentAPIModel.getCommentCountAPI(
             rows[index]?.dataValues?.postId
           );
 
@@ -95,6 +104,7 @@ class postController {
           postData.push({
             ...rows[index]?.dataValues,
             likesCount,
+            commentCount,
             userLiked: userLiked ? true : false,
           });
         }
