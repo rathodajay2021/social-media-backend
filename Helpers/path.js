@@ -18,6 +18,7 @@ const SERVER_PATH = "http://localhost:5000/";
 const GET_USER_FILE_URL = "/get-user-file";
 const GET_USER_DATA = "/get-user-data";
 const ADD_LIKE = "/add-likes";
+const DELETE_LIKE = "/delete-likes";
 
 module.exports = {
   DEFAULT_URL,
@@ -39,5 +40,6 @@ module.exports = {
   USER_LIST_URL,
   GET_USER_FILE_URL,
   GET_USER_DATA,
-  ADD_LIKE
+  ADD_LIKE,
+  DELETE_LIKE
 };

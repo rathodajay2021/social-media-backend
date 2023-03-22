@@ -16,6 +16,21 @@ class likesController {
       res.handler.serverError();
     }
   }
+
+  async removeLikes(req, res) {
+    try {
+      const response = await APIModel.removeLikesAPI(
+        req.body.postId,
+        req.body.userId
+      );
+
+      if (response) {
+        res.handler.success(response);
+      }
+    } catch (error) {
+      res.handler.serverError();
+    }
+  }
 }
 
 module.exports = likesController;

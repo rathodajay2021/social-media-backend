@@ -1,14 +1,68 @@
 const deleteFile = require("../Helpers/mediaFile");
 const { SERVER_PATH } = require("../Helpers/path");
 const APIModel = new (require("../Models/post.model"))();
+const likeAPIModel = new (require("../Models/likes.model"))();
 
 class postController {
+  constructor() {
+    this.addLikesData = this.addLikesData.bind(this);
+  }
+
+  async addLikesData(rows, userId) {
+    try {
+      const data = []
+      for (let index = 0; index < rows.length; index++) {
+        const likesCount = await likeAPIModel.getLikeCountAPI(
+          rows[index]?.dataValues?.postId
+        );
+
+        const userLiked = await likeAPIModel.userLikedAPI(
+          rows[index]?.dataValues?.postId,
+          userId
+        );
+
+        data.push({
+          ...rows[index]?.dataValues,
+          likesCount,
+          userLiked: userLiked ? true : false,
+        });
+      }
+
+      return data
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: postController.js:26 ~ postController ~ addLikesData ~ error:",
+        error
+      );
+      res.handler.serverError();
+    }
+  }
+
   async getAllPost(req, res) {
     try {
-      const {rows, count} = await APIModel.getAllPostAPI(req.body);
+      const { rows, count } = await APIModel.getAllPostAPI(req.body);
+      const userId = req.params.id;
+      const postData = []
 
       if (rows) {
-        res.handler.success({rows, count});
+        // const postData = await this.addLikesData(rows, userId)
+        for (let index = 0; index < rows.length; index++) {
+          const likesCount = await likeAPIModel.getLikeCountAPI(
+            rows[index]?.dataValues?.postId
+          );
+
+          const userLiked = await likeAPIModel.userLikedAPI(
+            rows[index]?.dataValues?.postId,
+            userId
+          );
+
+          postData.push({
+            ...rows[index]?.dataValues,
+            likesCount,
+            userLiked: userLiked ? true : false,
+          });
+        }
+        res.handler.success({ rows: postData, count });
       }
     } catch (error) {
       console.log(
@@ -22,11 +76,29 @@ class postController {
   async getUserPost(req, res) {
     try {
       const userId = req.params.id;
+      const postData = [];
 
-      const {rows, count} = await APIModel.getUserPostAPI(userId, req.body);
+      const { rows, count } = await APIModel.getUserPostAPI(userId, req.body);
 
       if (rows) {
-        res.handler.success({rows, count});
+        for (let index = 0; index < rows.length; index++) {
+          console.log(rows[index]?.dataValues?.postId);
+          const likesCount = await likeAPIModel.getLikeCountAPI(
+            rows[index]?.dataValues?.postId
+          );
+
+          const userLiked = await likeAPIModel.userLikedAPI(
+            rows[index]?.dataValues?.postId,
+            userId
+          );
+
+          postData.push({
+            ...rows[index]?.dataValues,
+            likesCount,
+            userLiked: userLiked ? true : false,
+          });
+        }
+        res.handler.success({ rows: postData, count });
       }
     } catch (error) {
       console.log(
@@ -172,7 +244,10 @@ class postController {
       const result = await APIModel.findOneMediaAPI(mediaId);
 
       if (result) {
-        const tempMediaPath = result.dataValues.mediaPath.replace(SERVER_PATH, "");
+        const tempMediaPath = result.dataValues.mediaPath.replace(
+          SERVER_PATH,
+          ""
+        );
         deleteFile(tempMediaPath);
       }
 
@@ -203,7 +278,10 @@ class postController {
 
       if (postResult) {
         for (let i = 0; i < postResult.length; i++) {
-          const tempMediaPath = postResult[i].mediaPath.replace(SERVER_PATH, "");
+          const tempMediaPath = postResult[i].mediaPath.replace(
+            SERVER_PATH,
+            ""
+          );
           deleteFile(tempMediaPath);
         }
       }
