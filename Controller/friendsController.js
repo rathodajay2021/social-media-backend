@@ -9,7 +9,7 @@ class friendsController {
       if (rows) {
         let dataToSend = [];
         for (let index = 0; index < rows.length; index++) {
-          if (rows[index].userId1 === parseInt(userId)) {
+          if (rows[index].senderId === parseInt(userId)) {
             dataToSend.push({
               ...rows[index].userTwo.dataValues,
               isFriend: true,

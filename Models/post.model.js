@@ -24,13 +24,19 @@ class post {
   async getUserPostAPI(userId, paginationInfo) {
     return await post_data.findAndCountAll({
       where: {
-        userId
+        userId,
       },
       attributes: [["id", "postId"], "description", "createdAt"],
-      include: {
-        model: postMedia,
-        attributes: ["mediaPath", "mediaType"],
-      },
+      include: [
+        {
+          model: postMedia,
+          attributes: ["mediaPath", "mediaType"],
+        },
+        {
+          model: users,
+          attributes: [["id", "userId"], "firstName", "lastName", "profilePic"],
+        },
+      ],
       // order: [[{ model: post_data }, "createdAt", "DESC"]],
       order: [["createdAt", "DESC"]],
       distinct: true,
