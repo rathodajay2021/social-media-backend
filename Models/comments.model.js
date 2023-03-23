@@ -19,8 +19,8 @@ class commentsAPI {
     return await comments.create(data);
   }
 
-  async editCommentAPI(id, data) {
-    return await comments.update(data, { where: { id } });
+  async editCommentAPI(commentId, data) {
+    return await comments.update(data, { where: { id: commentId } });
   }
 
   async getCommentCountAPI(postId) {
