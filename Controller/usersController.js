@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const sendGridTransport = require("nodemailer-sendgrid-transport");
 
 const APIModel = new (require("../Models/users.model"))();
 const { SERVER_PATH } = require("../Helpers/path");
@@ -9,11 +11,29 @@ class userController {
   constructor() {
     this.loginUser = this.loginUser.bind(this);
     this.createUser = this.createUser.bind(this);
+    this.sendMail = this.sendMail.bind(this);
   }
 
   createJsonToken(id) {
-    console.log("inside token", id);
     return jwt.sign({ id }, global.secretKey, { expiresIn: global.tokenAge });
+  }
+
+  async sendMail(emailId, subject, message) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: senderEmailId,
+        pass: senderEmailPass,
+      },
+    });
+
+    await transporter.sendMail({
+      // from: 'test@gmail.com',
+      to: `${emailId}`,
+      subject: subject || "email testing",
+      text: message || "yeeepp! it worked",
+      // html: "<h1>Hello world?</h1>",
+    });
   }
 
   async createUser(req, res) {
@@ -43,6 +63,9 @@ class userController {
         response.dataValues["accessToken"] = token;
         response.dataValues["isUserVerified"] = true;
         res.handler.success(response, "New user created successfully");
+        if (req.body.email.includes("@")) {
+          this.sendMail(req.body.email, 'user verification', 'New user created.');
+        }
       }
     } catch (error) {
       console.log(
@@ -183,7 +206,7 @@ class userController {
       const response = await APIModel.getUserDataAPI(req.params.id);
 
       if (response) {
-        res.handler.success(response)
+        res.handler.success(response);
       }
     } catch (error) {
       console.log(
