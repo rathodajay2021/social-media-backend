@@ -28,6 +28,7 @@ class likesController {
         res.handler.success(response);
       }
     } catch (error) {
+      console.log("🚀 ~ file: likesController.js:31 ~ likesController ~ removeLikes ~ error:", error)
       res.handler.serverError();
     }
   }
