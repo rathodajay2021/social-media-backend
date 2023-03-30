@@ -46,7 +46,6 @@ class postController {
       const postData = [];
 
       if (rows) {
-        console.log("🚀 ~ file: postController.js:49 ~ postController ~ getAllPost ~ rows:", rows)
         // const postData = await this.addLikesData(rows, userId)
         for (let index = 0; index < rows.length; index++) {
           const likesCount = await likeAPIModel.getLikeCountAPI(
