@@ -11,24 +11,24 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(users, {
         as: "userOne",
-        foreignKey: "userId1",
+        foreignKey: "senderId",
         onDelete: "CASCADE",
       });
       this.belongsTo(users, {
         as: "userTwo",
-        foreignKey: "userId2",
+        foreignKey: "receiverId",
         onDelete: "CASCADE",
       });
     }
   }
   friends.init(
     {
-      userId1: {
+      senderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: false,
       },
-      userId2: {
+      receiverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: false,
