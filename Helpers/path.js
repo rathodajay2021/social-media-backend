@@ -23,6 +23,8 @@ const GET_COMMENT = "/get-comment";
 const ADD_COMMENT = "/add-comment";
 const EDIT_COMMENT = "/edit-comment";
 const DELETE_COMMENT = "/delete-comment";
+const VERIFY_OTP = "/verify-otp";
+const RESEND_OTP = "/resend-otp";
 
 module.exports = {
   DEFAULT_URL,
@@ -49,5 +51,7 @@ module.exports = {
   GET_COMMENT,
   ADD_COMMENT,
   EDIT_COMMENT,
-  DELETE_COMMENT
+  DELETE_COMMENT,
+  VERIFY_OTP,
+  RESEND_OTP,
 };

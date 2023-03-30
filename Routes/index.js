@@ -10,4 +10,5 @@ module.exports = (app) => {
   app.use(pathUrl.DEFAULT_URL, require("./friendsRoutes"));
   app.use(pathUrl.DEFAULT_URL, require("./likesRoutes"));
   app.use(pathUrl.DEFAULT_URL, require("./commentsRoutes"));
+  app.use(pathUrl.DEFAULT_URL, require("./otpRoutes"));
 };

@@ -1,9 +1,11 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const sendGridTransport = require("nodemailer-sendgrid-transport");
+const otpGenerator = require("otp-generator");
+const ejs = require("ejs");
 
 const APIModel = new (require("../Models/users.model"))();
+const otpAPIModel = new (require("../Models/otp.model"))();
 const { SERVER_PATH } = require("../Helpers/path");
 const deleteFile = require("../Helpers/mediaFile");
 
@@ -18,21 +20,21 @@ class userController {
     return jwt.sign({ id }, global.secretKey, { expiresIn: global.tokenAge });
   }
 
-  async sendMail(emailId, subject, message) {
+  async sendMail(emailId, subject, message, html) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: senderEmailId,
-        pass: senderEmailPass,
+        user: process.env.senderEmailId,
+        pass: process.env.senderEmailPass,
       },
     });
 
     await transporter.sendMail({
-      // from: 'test@gmail.com',
+      // from: process.env.senderEmailId,
       to: `${emailId}`,
       subject: subject || "email testing",
       text: message || "yeeepp! it worked",
-      // html: "<h1>Hello world?</h1>",
+      html: html,
     });
   }
 
@@ -62,10 +64,36 @@ class userController {
         const token = this.createJsonToken(response.id);
         response.dataValues["accessToken"] = token;
         response.dataValues["isUserVerified"] = true;
-        res.handler.success(response, "New user created successfully");
-        if (req.body.email.includes("@")) {
-          this.sendMail(req.body.email, 'user verification', 'New user created.');
+
+        //create otp
+        const otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          lowerCaseAlphabets: false,
+          specialChars: false,
+          digits: true,
+        });
+        const otpData = {
+          otp,
+          email: req.body.email,
+        };
+        const otpResponse = await otpAPIModel.createOTP(otpData);
+        if (otpResponse) {
+          const htmlTemplate = await ejs.renderFile("Views/otpTemplate.ejs", {
+            oneTimePassword: otpResponse?.otp,
+          });
+          this.sendMail(
+            req.body.email,
+            "user verification",
+            null,
+            htmlTemplate
+          );
+          //delete otp
+          setTimeout(async () => {
+            await otpAPIModel.deleteOTP(req.body.email);
+          }, 10000);
         }
+
+        res.handler.success(response, "New user created successfully");
       }
     } catch (error) {
       console.log(

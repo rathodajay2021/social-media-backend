@@ -51,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
       coverPic: {
         type: DataTypes.STRING,
       },
+      otpVerification: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
     },
     {
       sequelize,

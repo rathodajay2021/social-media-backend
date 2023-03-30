@@ -12,6 +12,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static(path.join(__dirname, 'assets')));
+app.set('view engine', 'ejs')
+app.set("views", path.join(__dirname, "Views"));
 
 app.use(cors());
 const PORT = process.env.PORT || 5000;
@@ -56,3 +58,6 @@ appRoutes(app);
 
 //show media file on browser
 app.use("/assets/media", express.static("assets/media"));
+app.get('/temp', (req,res) => {
+  res.render('otpTemplate', { oneTimePassword: "125789" })
+})
