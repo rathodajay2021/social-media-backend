@@ -40,7 +40,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       bio: DataTypes.TEXT("long"),
-      dob: DataTypes.DATE,
+      dob: {
+        type: DataTypes.DATE,
+        defaultValue: null,
+        allowNull: true,
+      },
       profilePic: {
         type: DataTypes.STRING,
       },
