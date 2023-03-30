@@ -151,7 +151,13 @@ const editUserDetails = (req, res) => {
         isSuccess: false,
       });
     })
-    .catch((err) => res.json(err));
+    .catch((err) => {
+      const deleteFile = require("../helpers/mediaFile");
+      // console.log(
+      //   "🚀 ~ file: usersController.js:155 ~ editUserDetails ~ err:",
+      //   err
+      // );
+    });
 };
 
 module.exports = {

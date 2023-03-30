@@ -8,12 +8,16 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ post_data, friends }) {
+    static associate({ post_data, friends, likes, comments }) {
       // define association here
       this.hasMany(post_data, { foreignKey: "userId" });
 
-      this.hasMany(friends, { as: "userOne", foreignKey: "userId1" });
-      this.hasMany(friends, { as: "userTwo", foreignKey: "userId2" });
+      this.hasMany(friends, { as: "userOne", foreignKey: "senderId" });
+      this.hasMany(friends, { as: "userTwo", foreignKey: "receiverId" });
+
+      this.hasMany(likes, { foreignKey: "userId" });
+
+      this.hasMany(comments, { foreignKey: "userId" });
     }
   }
   users.init(
@@ -35,8 +39,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      bio: DataTypes.TEXT('long'),
-      dob: DataTypes.DATE,
+      bio: DataTypes.TEXT("long"),
+      dob: {
+        type: DataTypes.DATE,
+        defaultValue: null,
+        allowNull: true,
+      },
       profilePic: {
         type: DataTypes.STRING,
       },

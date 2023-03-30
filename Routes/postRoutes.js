@@ -1,14 +1,14 @@
 const express = require("express");
-const upload = require("../helpers/uploader");
+const upload = require("../Helpers/uploader");
 
 const router = express.Router();
-const controller = require("../controller/postController");
-const path = require("../helpers/path");
-const protectedRoutes = require("../helpers/authMiddleware");
+const controller = new (require("../Controller/postController"))();
+const path = require("../Helpers/path");
+const protectedRoutes = require("../Middleware/authMiddleware");
 
 // const uploadMiddleware = ;
-router.get(path.GET_ALL_POST_URL, protectedRoutes, controller.getAllPost);
-router.get(
+router.post(`${path.GET_ALL_POST_URL}/:id`, protectedRoutes, controller.getAllPost);
+router.post(
   `${path.GET_USER_POST_URL}/:id`,
   protectedRoutes,
   controller.getUserPost

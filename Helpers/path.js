@@ -16,6 +16,13 @@ const FRIEND_LIST_URL = "/get-friend-list";
 const USER_LIST_URL = "/get-user-list";
 const SERVER_PATH = "http://localhost:5000/";
 const GET_USER_FILE_URL = "/get-user-file";
+const GET_USER_DATA = "/get-user-data";
+const ADD_LIKE = "/add-likes";
+const DELETE_LIKE = "/delete-likes";
+const GET_COMMENT = "/get-comment";
+const ADD_COMMENT = "/add-comment";
+const EDIT_COMMENT = "/edit-comment";
+const DELETE_COMMENT = "/delete-comment";
 
 module.exports = {
   DEFAULT_URL,
@@ -35,5 +42,12 @@ module.exports = {
   FRIEND_LIST_URL,
   SERVER_PATH,
   USER_LIST_URL,
-  GET_USER_FILE_URL
+  GET_USER_FILE_URL,
+  GET_USER_DATA,
+  ADD_LIKE,
+  DELETE_LIKE,
+  GET_COMMENT,
+  ADD_COMMENT,
+  EDIT_COMMENT,
+  DELETE_COMMENT
 };

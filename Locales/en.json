@@ -1,0 +1,30 @@
+{
+	"This is the test message": "This is the test message",
+	"STATUS": {
+		"SUCCESS": "STATUS.SUCCESS",
+		"SERVER_ERROR": "STATUS.SERVER_ERROR"
+	},
+	"VALIDATION": {
+		"NOT_FOUND": {
+			"DATA": "VALIDATION.NOT_FOUND.DATA"
+		}
+	},
+	"Un-friend successfully": "Un-friend successfully",
+	"New friend added successfully": "New friend added successfully",
+	"New post added successfully": "New post added successfully",
+	"User post updated successfully": "User post updated successfully",
+	"Media file deleted successfully": "Media file deleted successfully",
+	"Your post deleted successfully": "Your post deleted successfully",
+	"User with that email id already exist, Please try new email id": "User with that email id already exist, Please try new email id",
+	"New user created successfully": "New user created successfully",
+	"User not found": "User not found",
+	"Wrong password": {
+		" Try again": "Wrong password. Try again"
+	},
+	"Password reset successfully": "Password reset successfully",
+	"user details updated successfully": "user details updated successfully",
+	"Comment deleted successfully": "Comment deleted successfully",
+	"New comment added successfully": "New comment added successfully",
+	"Comment updated successfully": "Comment updated successfully",
+	"Empty comment are not allowed": "Empty comment are not allowed"
+}

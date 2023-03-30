@@ -1,26 +1,34 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class post_data extends Model {
+  class friends extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ users, postMedia }) {
+    static associate({ users }) {
       // define association here
       this.belongsTo(users, {
-        foreignKey: "userId",
+        as: "userOne",
+        foreignKey: "senderId",
         onDelete: "CASCADE",
       });
-
-      this.hasMany(postMedia, { foreignKey: "postId" });
+      this.belongsTo(users, {
+        as: "userTwo",
+        foreignKey: "receiverId",
+        onDelete: "CASCADE",
+      });
     }
   }
-  post_data.init(
+  friends.init(
     {
-      description: DataTypes.TEXT('long'),
-      userId: {
+      senderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: false,
+      },
+      receiverId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: false,
@@ -28,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "post_data",
+      modelName: "friends",
     }
   );
-  return post_data;
+  return friends;
 };

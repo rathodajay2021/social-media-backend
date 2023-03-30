@@ -1,11 +1,12 @@
 const express = require("express");
 
 const router = express.Router();
-const controller = require("../controller/usersController");
-const path = require("../helpers/path");
-const upload = require("../helpers/uploader");
-const protectedRoutes = require("../helpers/authMiddleware");
+const controller = new (require("../Controller/usersController"))();
+const path = require("../Helpers/path");
+const upload = require("../Helpers/uploader");
+const protectedRoutes = require("../Middleware/authMiddleware");
 
+router.get(`${path.GET_USER_DATA}/:id`, protectedRoutes, controller.getUserData);
 router.post(path.LOGIN_URL, controller.loginUser);
 router.post(path.SIGN_UP_URL, controller.createUser);
 router.post(path.VERIFY_URL, controller.verifyUser);
