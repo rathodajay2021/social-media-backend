@@ -25,5 +25,6 @@
 	"user details updated successfully": "user details updated successfully",
 	"Comment deleted successfully": "Comment deleted successfully",
 	"New comment added successfully": "New comment added successfully",
-	"Comment updated successfully": "Comment updated successfully"
+	"Comment updated successfully": "Comment updated successfully",
+	"Empty comment are not allowed": "Empty comment are not allowed"
 }
