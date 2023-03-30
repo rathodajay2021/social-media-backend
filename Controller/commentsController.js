@@ -3,7 +3,10 @@ const APIModel = new (require("../Models/comments.model"))();
 class commentsController {
   async getComment(req, res) {
     try {
-      const { rows, count } = await APIModel.getCommentAPI(req.params.id, req.body);
+      const { rows, count } = await APIModel.getCommentAPI(
+        req.params.id,
+        req.body
+      );
 
       if (rows) {
         res.handler.success({ rows, count });
@@ -15,6 +18,9 @@ class commentsController {
 
   async addComment(req, res) {
     try {
+      if (!req.body.comment.length) {
+        return res.handler.badRequest("Empty comment are not allowed");
+      }
       const response = await APIModel.addCommentAPI(req.body);
 
       if (response) {
@@ -31,6 +37,9 @@ class commentsController {
 
   async editComment(req, res) {
     try {
+      if (!req.body.comment.length) {
+        return res.handler.badRequest("Empty comment are not allowed");
+      }
       const response = await APIModel.editCommentAPI(req.params.id, req.body);
 
       if (response) {
