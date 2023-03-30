@@ -58,6 +58,3 @@ appRoutes(app);
 
 //show media file on browser
 app.use("/assets/media", express.static("assets/media"));
-app.get('/temp', (req,res) => {
-  res.render('otpTemplate', { oneTimePassword: "125789" })
-})
