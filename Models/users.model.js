@@ -21,6 +21,10 @@ class User {
     return await users.update(data, { where: { id } });
   }
 
+  async updateUserByEmailAPI(data, email) {
+    return await users.update(data, { where: { email } });
+  }
+
   async getUserDataAPI(id) {
     return await users.findOne({
       where: { id },

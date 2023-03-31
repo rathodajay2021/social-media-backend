@@ -2,7 +2,9 @@
 	"This is the test message": "This is the test message",
 	"STATUS": {
 		"SUCCESS": "STATUS.SUCCESS",
-		"SERVER_ERROR": "STATUS.SERVER_ERROR"
+		"SERVER_ERROR": "STATUS.SERVER_ERROR",
+		"BAD_REQUEST": "STATUS.BAD_REQUEST",
+		"VALIDATION_ERROR": "STATUS.VALIDATION_ERROR"
 	},
 	"VALIDATION": {
 		"NOT_FOUND": {
@@ -26,5 +28,9 @@
 	"Comment deleted successfully": "Comment deleted successfully",
 	"New comment added successfully": "New comment added successfully",
 	"Comment updated successfully": "Comment updated successfully",
-	"Empty comment are not allowed": "Empty comment are not allowed"
+	"Empty comment are not allowed": "Empty comment are not allowed",
+	"You forgot to send mail id": "You forgot to send mail id",
+	"You forgot to send mail/phone": "You forgot to send mail/phone",
+	"You forgot to send E-mail/Phone no": "You forgot to send E-mail/Phone no",
+	"Otp send to successfully": "Otp send to successfully"
 }

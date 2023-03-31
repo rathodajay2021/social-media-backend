@@ -61,10 +61,6 @@ class userController {
       const response = await APIModel.createUserAPI(Data);
 
       if (response) {
-        const token = this.createJsonToken(response.id);
-        response.dataValues["accessToken"] = token;
-        response.dataValues["isUserVerified"] = true;
-
         //create otp
         const otp = otpGenerator.generate(6, {
           upperCaseAlphabets: false,
@@ -90,7 +86,7 @@ class userController {
           //delete otp
           setTimeout(async () => {
             await otpAPIModel.deleteOTP(req.body.email);
-          }, 10000);
+          }, 300000);
         }
 
         res.handler.success(response, "New user created successfully");
@@ -111,7 +107,6 @@ class userController {
       if (response) {
         const auth = await bcrypt.compare(req.body.password, response.password);
         if (auth) {
-          console.log("before token", response.id);
           const token = this.createJsonToken(response.id);
           response.dataValues["accessToken"] = token;
           response.dataValues["isUserVerified"] = true;
