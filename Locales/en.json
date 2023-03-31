@@ -32,5 +32,6 @@
 	"You forgot to send mail id": "You forgot to send mail id",
 	"You forgot to send mail/phone": "You forgot to send mail/phone",
 	"You forgot to send E-mail/Phone no": "You forgot to send E-mail/Phone no",
-	"Otp send to successfully": "Otp send to successfully"
+	"Otp send to successfully": "Otp send to successfully",
+	"You need to verify your E-mail/phone": "You need to verify your E-mail/phone"
 }

@@ -107,12 +107,43 @@ class userController {
       if (response) {
         const auth = await bcrypt.compare(req.body.password, response.password);
         if (auth) {
-          const token = this.createJsonToken(response.id);
-          response.dataValues["accessToken"] = token;
-          response.dataValues["isUserVerified"] = true;
-          res.handler.success(response);
+          if (!!response?.otpVerification) {
+            const token = this.createJsonToken(response.id);
+            response.dataValues["accessToken"] = token;
+            response.dataValues["isUserVerified"] = true;
+            res.handler.success(response);
+          } else {
+            const otp = otpGenerator.generate(6, {
+              upperCaseAlphabets: false,
+              lowerCaseAlphabets: false,
+              specialChars: false,
+              digits: true,
+            });
+            const otpData = {
+              otp,
+              email: req.body.email,
+            };
+            const otpResponse = await otpAPIModel.createOTP(otpData);
+            if (otpResponse) {
+              const htmlTemplate = await ejs.renderFile(
+                "Views/otpTemplate.ejs",
+                {
+                  oneTimePassword: otpResponse?.otp,
+                }
+              );
+              this.sendMail(
+                req.body.email,
+                "user verification",
+                null,
+                htmlTemplate
+              );
+            }
+            res.handler.preconditionFailed(
+              "You need to verify your E-mail/phone"
+            );
+          }
         } else {
-          res.handler.notFound("Wrong password. Try again");
+          res.handler.validationError("Wrong password. Try again");
         }
       } else {
         res.handler.notFound("User not found");
