@@ -1,16 +1,12 @@
-const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const ejs = require("ejs");
+// const otpGenerator = require("otp-generator");
 
-const { sendMail } = require("../Helpers/Utils");
+const { sendMail, otpGeneration, createJsonToken } = require("../Helpers/Utils");
 const APIModel = new (require("../Models/otp.model"))();
 const userAPIModel = new (require("../Models/users.model"))();
 
 class otpController {
-  createJsonToken(id) {
-    return jwt.sign({ id }, global.secretKey, { expiresIn: global.tokenAge });
-  }
 
   async verifyOTP(req, res) {
     try {
@@ -31,14 +27,11 @@ class otpController {
           );
 
           if (response) {
-            // const token = this.createJsonToken(userExist.id);
             await userAPIModel.updateUserByEmailAPI(
               { otpVerification: 1 },
               req?.body?.email
             );
-            const token = jwt.sign({ id: userExist.id }, global.secretKey, {
-              expiresIn: global.tokenAge,
-            });
+            const token = createJsonToken(userExist.id)
             userExist.dataValues["accessToken"] = token;
             userExist.dataValues["isUserVerified"] = true;
             res.handler.success(userExist);
@@ -52,38 +45,38 @@ class otpController {
         return res.handler.notFound("User not found");
       }
     } catch (error) {
+      console.log(
+        "🚀 ~ file: otpController.js:53 ~ otpController ~ verifyOTP ~ error:",
+        error
+      );
       res.handler.serverError();
     }
   }
 
   async resendOTP(req, res) {
     try {
-      const otp = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        lowerCaseAlphabets: false,
-        specialChars: false,
-        digits: true,
-      });
+      const otp = otpGeneration()
 
       const otpExist = await APIModel.getOTP(req.body.email);
 
       if (otpExist) {
-        const response = await APIModel.updateOTP(req.body.email, otp);
+        const response = await APIModel.updateOTP(req.body.email, { otp });
 
         if (response) {
-          const newOtp = await APIModel.getOTP(req.body.email);
-          if (newOtp) {
-            const htmlTemplate = await ejs.renderFile("Views/otpTemplate.ejs", {
-              oneTimePassword: newOtp?.otp,
-            });
-            await sendMail(
-              req.body.email,
-              "user verification",
-              null,
-              htmlTemplate
-            );
-            res.handler.success(null, "otp send to successfully");
-          }
+          const htmlTemplate = await ejs.renderFile("Views/otpTemplate.ejs", {
+            oneTimePassword: otp,
+          });
+          await sendMail(
+            req.body.email,
+            "user verification",
+            null,
+            htmlTemplate
+          );
+          //delete otp
+          setTimeout(async () => {
+            await APIModel.deleteOTP(req.body.email);
+          }, 60000);
+          res.handler.success({}, "otp send to successfully");
         }
       } else {
         const otpData = {
@@ -104,10 +97,15 @@ class otpController {
           //delete otp
           setTimeout(async () => {
             await APIModel.deleteOTP(req.body.email);
-          }, 300000);
+          }, 60000);
+          res.handler.success({}, "otp send to successfully");
         }
       }
     } catch (error) {
+      console.log(
+        "🚀 ~ file: otpController.js:104 ~ otpController ~ resendOTP ~ error:",
+        error
+      );
       res.handler.serverError();
     }
   }

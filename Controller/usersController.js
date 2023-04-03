@@ -1,41 +1,17 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-const otpGenerator = require("otp-generator");
 const ejs = require("ejs");
 
 const APIModel = new (require("../Models/users.model"))();
 const otpAPIModel = new (require("../Models/otp.model"))();
 const { SERVER_PATH } = require("../Helpers/path");
 const deleteFile = require("../Helpers/mediaFile");
+const { sendMail, otpGeneration, createJsonToken } = require("../Helpers/Utils");
 
 class userController {
   constructor() {
     this.loginUser = this.loginUser.bind(this);
     this.createUser = this.createUser.bind(this);
-    this.sendMail = this.sendMail.bind(this);
-  }
-
-  createJsonToken(id) {
-    return jwt.sign({ id }, global.secretKey, { expiresIn: global.tokenAge });
-  }
-
-  async sendMail(emailId, subject, message, html) {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.senderEmailId,
-        pass: process.env.senderEmailPass,
-      },
-    });
-
-    await transporter.sendMail({
-      // from: process.env.senderEmailId,
-      to: `${emailId}`,
-      subject: subject || "email testing",
-      text: message || "yeeepp! it worked",
-      html: html,
-    });
   }
 
   async createUser(req, res) {
@@ -62,12 +38,7 @@ class userController {
 
       if (response) {
         //create otp
-        const otp = otpGenerator.generate(6, {
-          upperCaseAlphabets: false,
-          lowerCaseAlphabets: false,
-          specialChars: false,
-          digits: true,
-        });
+        const otp = otpGeneration();
         const otpData = {
           otp,
           email: req.body.email,
@@ -77,16 +48,11 @@ class userController {
           const htmlTemplate = await ejs.renderFile("Views/otpTemplate.ejs", {
             oneTimePassword: otpResponse?.otp,
           });
-          this.sendMail(
-            req.body.email,
-            "user verification",
-            null,
-            htmlTemplate
-          );
+          sendMail(req.body.email, "user verification", null, htmlTemplate);
           //delete otp
           setTimeout(async () => {
             await otpAPIModel.deleteOTP(req.body.email);
-          }, 300000);
+          }, 60000);
         }
 
         res.handler.success(response, "New user created successfully");
@@ -108,17 +74,12 @@ class userController {
         const auth = await bcrypt.compare(req.body.password, response.password);
         if (auth) {
           if (!!response?.otpVerification) {
-            const token = this.createJsonToken(response.id);
+            const token = createJsonToken(response.id);
             response.dataValues["accessToken"] = token;
             response.dataValues["isUserVerified"] = true;
             res.handler.success(response);
           } else {
-            const otp = otpGenerator.generate(6, {
-              upperCaseAlphabets: false,
-              lowerCaseAlphabets: false,
-              specialChars: false,
-              digits: true,
-            });
+            const otp = otpGeneration();
             const otpData = {
               otp,
               email: req.body.email,
@@ -131,12 +92,7 @@ class userController {
                   oneTimePassword: otpResponse?.otp,
                 }
               );
-              this.sendMail(
-                req.body.email,
-                "user verification",
-                null,
-                htmlTemplate
-              );
+              sendMail(req.body.email, "user verification", null, htmlTemplate);
             }
             res.handler.preconditionFailed(
               "You need to verify your E-mail/phone"
