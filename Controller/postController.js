@@ -41,34 +41,34 @@ class postController {
 
   async getAllPost(req, res) {
     try {
-      const { rows, count } = await APIModel.getAllPostAPI(req.body);
-      const userId = req.params.id;
-      const postData = [];
+      const { rows, count } = await APIModel.getAllPostAPI(req.body, req.params.id);
+      // const userId = req.params.id;
+      // const postData = [];
 
       if (rows) {
         // const postData = await this.addLikesData(rows, userId)
-        for (let index = 0; index < rows.length; index++) {
-          const likesCount = await likeAPIModel.getLikeCountAPI(
-            rows[index]?.dataValues?.postId
-          );
+        // for (let index = 0; index < rows.length; index++) {
+          // const likesCount = await likeAPIModel.getLikeCountAPI(
+          //   rows[index]?.dataValues?.postId
+          // );
 
-          const commentCount = await commentAPIModel.getCommentCountAPI(
-            rows[index]?.dataValues?.postId
-          );
+          // const commentCount = await commentAPIModel.getCommentCountAPI(
+          //   rows[index]?.dataValues?.postId
+          // );
 
-          const userLiked = await likeAPIModel.userLikedAPI(
-            rows[index]?.dataValues?.postId,
-            userId
-          );
+          // const userLiked = await likeAPIModel.userLikedAPI(
+          //   rows[index]?.dataValues?.postId,
+          //   userId
+          // );
 
-          postData.push({
-            ...rows[index]?.dataValues,
-            likesCount,
-            commentCount,
-            userLiked: userLiked ? true : false,
-          });
-        }
-        res.handler.success({ rows: postData, count });
+          // postData.push({
+            // ...rows[index]?.dataValues,
+            // likesCount,
+            // commentCount,
+            // userLiked: userLiked ? true : false,
+          // });
+        // }
+        res.handler.success({ rows, count });
       }
     } catch (error) {
       console.log(

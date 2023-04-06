@@ -1,9 +1,32 @@
 const { post_data, postMedia, users } = require("../Database/Schemas");
+const sequelize = require("sequelize");
 
 class post {
-  async getAllPostAPI(paginationInfo) {
+  async getAllPostAPI(paginationInfo, userId) {
     return await post_data.findAndCountAll({
-      attributes: [["id", "postId"], "description", "createdAt"],
+      attributes: [
+        ["id", "postId"],
+        "description",
+        "createdAt",
+        [
+          sequelize.literal(
+            `(select count(*) from likes where likes.postId = post_data.id)`
+          ),
+          "likesCount",
+        ],
+        [
+          sequelize.literal(
+            `((select id from likes where likes.postId = post_data.id and likes.userId = ${userId} ) is not null)`
+          ),
+          "userLiked",
+        ],
+        [
+          sequelize.literal(
+            `(select count(*) from comments where comments.postId = post_data.id)`
+          ),
+          "commentCount",
+        ],
+      ],
       include: [
         {
           model: postMedia,
